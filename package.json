@@ -1,0 +1,11 @@
+{
+  "workspaces": [
+    "frontend",
+    "backend",
+    "shared"
+  ],
+  "dependencies": {
+    "zod": "^4.4.3",
+    "zod-validation-error": "^5.0.0"
+  }
+}

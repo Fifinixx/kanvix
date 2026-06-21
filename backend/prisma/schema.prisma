@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  firstName     String
+  lastName      String
+  passwordHash  String
+  memberships   Membership[]
+  assignedTasks Task[]       @relation("Assignee")
+  comments      Comment[]
+  createdAt     DateTime     @default(now())
+}
+
+model RefreshToken {
+  id         String   @id @default(cuid())
+  userId     String
+  tokenHash  String
+  revoked    Boolean  @default(false)
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  replacedBy String?
+}
+
+model Organization {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  memberships Membership[]
+  projects    Project[]
+  invites     Invite[]
+  createdAt   DateTime     @default(now())
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Membership {
+  id     String       @id @default(cuid())
+  role   Role         @default(MEMBER)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId  String
+
+  @@unique([userId, orgId]) // a user joins an org once
+  @@index([orgId])
+}
+
+model Invite {
+  id        String       @id @default(cuid())
+  email     String
+  role      Role         @default(MEMBER)
+  token     String       @unique
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId     String
+  expiresAt DateTime
+  createdAt DateTime     @default(now())
+}
+
+model Project {
+  id         String       @id @default(cuid())
+  name       String
+  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId      String
+  tasks      Task[]
+  activities Activity[]
+  createdAt  DateTime     @default(now())
+
+  @@index([orgId])
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  position    Float // for ordering within a column (fractional indexing)
+  dueDate     DateTime?
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId   String
+  assignee    User?      @relation("Assignee", fields: [assigneeId], references: [id])
+  assigneeId  String?
+  comments    Comment[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([projectId, status])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  body      String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  taskId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  authorId  String
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+}
+
+model Activity {
+  id        String   @id @default(cuid())
+  type      String // "task.created", "task.moved", "comment.added"...
+  meta      Json // flexible payload
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  actorId   String
+  createdAt DateTime @default(now())
+
+  @@index([projectId, createdAt])
+}
