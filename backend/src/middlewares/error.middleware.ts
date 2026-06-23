@@ -10,6 +10,7 @@ import {
 
 import {z} from "zod";
 import {fromZodError} from "zod-validation-error"
+import { JsonWebTokenError } from "jsonwebtoken";
 
 
 const PRISMA_KNOWN_ERROR_MAP: Record<
@@ -43,6 +44,10 @@ export default function ErrorHandler(
     console.log(err);
     const error = fromZodError(err);
     return res.status(400).json({message: error});
+  }
+  if(err instanceof JsonWebTokenError){
+    console.error(err);
+    return res.status(401).json({message:"Invalid jwt token"});
   }
   if (err instanceof PrismaClientKnownRequestError) {
     console.log(err);

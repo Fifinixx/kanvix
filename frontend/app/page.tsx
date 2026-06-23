@@ -1,6 +1,5 @@
 import Hero from "@/components/hero/hero";
 import NavBar from "@/components/navbar/navbar";
-import LiquidEther from "../components/LiquidEther";
 import DarkVeil from "../components/DarkVeil";
 
 export default function Home() {

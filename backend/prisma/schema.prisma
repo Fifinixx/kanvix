@@ -13,25 +13,27 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  email         String       @unique
+  id            String         @id @default(cuid())
+  email         String         @unique
   firstName     String
   lastName      String
   passwordHash  String
   memberships   Membership[]
-  assignedTasks Task[]       @relation("Assignee")
+  assignedTasks Task[]         @relation("Assignee")
   comments      Comment[]
-  createdAt     DateTime     @default(now())
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
 }
 
 model RefreshToken {
   id         String   @id @default(cuid())
-  userId     String
-  tokenHash  String
+  user       User     @relation(fields: [userId], references: [id])
+  tokenHash  String   @unique
   revoked    Boolean  @default(false)
   expiresAt  DateTime
   createdAt  DateTime @default(now())
   replacedBy String?
+  userId     String
 }
 
 model Organization {

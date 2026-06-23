@@ -1,7 +1,13 @@
 import { Router } from "express";
-import { AuthSignUpController, AuthSignInController } from "./auth.controller";
+import {
+  AuthSignUpController,
+  AuthSignInController,
+  AuthSignOutController,
+} from "./auth.controller";
 
-const AuthRouter = Router();
+export const AuthRouter = Router();
 
 AuthRouter.post("/signup", AuthSignUpController);
-AuthRouter.get("/signup", AuthSignInController);
+AuthRouter.post("/signin", AuthSignInController);
+AuthRouter.post("/signout", AuthSignOutController);
+AuthRouter.post("/refresh", () => {})

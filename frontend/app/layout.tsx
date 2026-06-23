@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import {Oxanium } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import { Toaster } from "@/components/ui/sonner"
 
 const oxanium = Oxanium({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -22,8 +22,8 @@ export default function RootLayout({
       className={cn("h-full", "antialiased", "font-sans", oxanium.variable)}
     >
       <body className="relative h-screen">
-        {/* <Image src="/BG.png" alt="Background image" fill className="-z-1"/> */}
         {children}
+         <Toaster richColors/>
       </body>
     </html>
   );
