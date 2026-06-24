@@ -3,16 +3,16 @@ const REFRESH_COOKIE_OPTIONS = {
   path:'/api/auth/refresh',
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
+  sameSite: process.env.NODE_ENV === "production" ? "strict" as const : "lax" as const,
   maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
 const ACCESS_COOKIE_OPTIONS = {
-  path: '/api',
+  path: '/',
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: "strict" as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  sameSite: process.env.NODE_ENV === "production" ? "strict" as const : "lax" as const,
+  maxAge: 15 * 60 * 1000,
 };
 
 export function SetAccessTokenCookie(res: Response, accessToken: string) {

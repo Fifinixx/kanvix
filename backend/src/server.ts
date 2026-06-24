@@ -6,6 +6,7 @@ import { rateLimit } from "express-rate-limit";
 import { HealthRouter } from "./modules/health/health.route";
 import ErrorHandler from "./middlewares/error.middleware";
 import { AuthRouter } from "./modules/auth/auth.route";
+import cookieParser from "cookie-parser";
 
 const app = express();
 const PORT = 9000;
@@ -23,6 +24,7 @@ app.use(
 app.use("/health", HealthRouter);
 
 app.use(express.json());
+app.use(cookieParser());
 
 const httpServer = createServer(app);
 const limiter = rateLimit({

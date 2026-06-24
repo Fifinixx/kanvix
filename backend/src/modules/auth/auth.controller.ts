@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import {
   CreateRefreshTokenService,
+  RotateRefreshTokenService,
   SignInService,
   SignOutService,
-  SignUpService 
+  SignUpService,
 } from "./auth.service";
 import { GenerateAccessToken } from "../../lib/jwt.util";
 import { GenerateRefreshToken, HashRefreshToken } from "../../lib/crypto.util";
@@ -13,12 +14,12 @@ import {
   SetRefreshTokenCookie,
 } from "../../lib/cookies.util";
 
-export async function AuthSignUpController(
+export async function SignUpController(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-    console.log(req.body)
+  console.log(req.body);
   const insertedUser = await SignUpService(req.body.data);
 
   const accessToken = GenerateAccessToken({
@@ -31,10 +32,10 @@ export async function AuthSignUpController(
   const hashedRefreshedToken = HashRefreshToken(rawToken);
   const formedRefreshToken = {
     userId: insertedUser.id,
-    tokenHash: hashedRefreshedToken,
+    token: hashedRefreshedToken,
     expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days expiry
   };
-  CreateRefreshTokenService(formedRefreshToken);
+  await CreateRefreshTokenService(formedRefreshToken);
   SetRefreshTokenCookie(res, rawToken);
 
   return res.status(200).json({
@@ -45,26 +46,47 @@ export async function AuthSignUpController(
   });
 }
 
-export async function AuthSignInController(
+export async function SignInController(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {}
 
-export async function AuthSignOutController(
+export async function SignOutController(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
   const refreshToken = req.cookies?.refreshToken;
-  ClearCookies(res); // clears cookies
   if (!refreshToken) {
     return res.status(200).json({ message: "User is signed out succesfully!" });
   }
+  ClearCookies(res); // clears cookies
   await SignOutService(refreshToken); // deletes from db
   return res.status(200).json({ message: "User is signed out succesfully!" });
 }
 
-export async function AuthRefreshController(req:Request, res:Response, next:NextFunction){
-    
+export async function RotateRefreshTokenController(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const rawToken = req.cookies.refreshToken;
+
+  if (!rawToken) {
+    return res.status(401).json({ message: "No refresh token provided" });
+  }
+
+  const result = await RotateRefreshTokenService(rawToken);
+
+  if (result === 401) {
+    return res.status(401).json({ message: "No valid session found" });
+  }
+
+  res.cookie("refreshToken", result.newRefreshToken, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  return res.status(200).json({message:"Session validated."})
 }

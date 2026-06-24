@@ -1,13 +1,14 @@
 import { Router } from "express";
 import {
-  AuthSignUpController,
-  AuthSignInController,
-  AuthSignOutController,
+  SignUpController,
+  SignInController,
+  SignOutController,
+  RotateRefreshTokenController,
 } from "./auth.controller";
 
 export const AuthRouter = Router();
 
-AuthRouter.post("/signup", AuthSignUpController);
-AuthRouter.post("/signin", AuthSignInController);
-AuthRouter.post("/signout", AuthSignOutController);
-AuthRouter.post("/refresh", () => {})
+AuthRouter.post("/signup", SignUpController);
+AuthRouter.post("/signin", SignInController);
+AuthRouter.post("/signout", SignOutController);
+AuthRouter.post("/refresh", RotateRefreshTokenController)
