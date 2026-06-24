@@ -6,15 +6,17 @@ import { type SignUpType, SignUpSchema } from "../../shared/schemas/signup";
 import { fromZodError } from "zod-validation-error";
 import { toast } from "sonner";
 
+
 export function useUserRegistration() {
-  const [userInputs, setUserInputs] = useState({
+  const emptyUser = {
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-  });
+  }
+  const [userInputs, setUserInputs] = useState(emptyUser);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<SignUpType | {}>({});
+  const [error, setError] = useState<Partial<SignUpType>>(emptyUser);
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     setUserInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -22,28 +24,27 @@ export function useUserRegistration() {
     const parseUser = SignUpSchema.safeParse(userInputs);
     if (!parseUser.success) {
       const errors = fromZodError(parseUser.error);
-      const formattedErrors = errors.details.reduce(
+      const formattedErrors:Partial<Record<keyof SignUpType, string>>= errors.details.reduce(
         (acc, err) => {
-          const field = err.path[0] as string;
+          const field = err.path[0] as keyof SignUpType;
           acc[field] = err.message;
           return acc;
         },
-        {} as Record<string, string>,
+         {} as Partial<Record<keyof SignUpType, string>> ,
       );
-      setError(prev => ({...formattedErrors}));
+      setError(formattedErrors);
       toast.error("Invalid inputs");
       return;
     }
     try {
       setLoading(true);
-      console.log(userInputs)
       const signup = await SignUpApiService(userInputs);
       if (!signup.ok) {
         toast.error("Error while fetching response");
         setLoading(false);
       }
-    } catch (e) {
-      console.log("Fetch failed");
+    } catch (e:any) {
+      toast.error(e.message || "Error while fetching response");
     } finally {
       setLoading(false);
     }
