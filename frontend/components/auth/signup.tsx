@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useUserRegistration } from "@/hooks/useUserRegistration";
 import { Spinner } from "../ui/spinner";
+import { TempApiRefresh } from "@/services/auth.service";
 
 export default function SignUpForm() {
   const { userInputs, handleInputChange, handleSignUp, loading, error } =
@@ -120,6 +121,7 @@ export default function SignUpForm() {
           >
             {loading ? <Spinner /> : "Sign up"}
           </Button>
+          <Button type="button" onClick={TempApiRefresh}>Refresh</Button>
           <Button variant="outline" className="w-full">
             Sign up with Google
           </Button>

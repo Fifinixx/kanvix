@@ -1,4 +1,3 @@
-import { cookies } from "next/headers";
 import { type ServiceFn, QueuedRequests } from "../../shared/types";
 import { toast } from "sonner";
 
