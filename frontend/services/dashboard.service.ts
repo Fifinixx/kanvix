@@ -1,3 +1,3 @@
-export async function FetchUser(){
+export async function FetchUserApiService(){
     
 }

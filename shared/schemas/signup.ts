@@ -23,4 +23,5 @@ const SignUpSchema = z.object({
 });
 
 type SignUpType = z.infer<typeof SignUpSchema>;
-export { SignUpSchema, SignUpType };
+export { SignUpSchema };
+export type { SignUpType };

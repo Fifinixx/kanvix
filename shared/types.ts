@@ -4,7 +4,7 @@ export interface TokenPayload {
 }
 export interface RefreshToken {
   userId: string;
-  tokenHash: string;
+  token: string;
   expiresAt: Date;
 }
 
@@ -15,3 +15,12 @@ export interface QueuedRequests  {
   resolve: (res:Response) => void;
   reject: (err:unknown) => void
 };
+
+export interface NavMenuType{
+  title:string, 
+  url:string,
+  isActive:boolean,
+  items?:NavMenuType[]
+}
+
+export type NavMenuGroupType = NavMenuType[];

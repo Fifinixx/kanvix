@@ -3,130 +3,169 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useUserRegistration } from "@/hooks/useUserRegistration";
+import { useUserAuth } from "@/hooks/useUserAuth";
 import { Spinner } from "../ui/spinner";
-import { TempApiRefresh } from "@/services/auth.service";
+import { type UserAuthHookType } from "@/hooks/useUserAuth";
 
-export default function SignUpForm() {
-  const { userInputs, handleInputChange, handleSignUp, loading, error } =
-    useUserRegistration();
+function GoogleIcon() {
+  // Todo: import this from somewhere, don't create SVG like this
   return (
-    <form>
-      <div className="flex flex-col gap-6">
-        <div className="relative grid gap-2">
-          <Label htmlFor="firstName">First name</Label>
-          <Input
-            value={userInputs.firstName}
-            onChange={(e) => handleInputChange(e)}
-            name="firstName"
-            id="firstName"
-            type="text"
-            placeholder="John"
-            required
-            autoComplete="given-name"
-            className={
-              error.firstName
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""
-            }
-          />
-          {error.firstName && (
-            <span className="text-xs font-bold text-center text-red-500">
-              {error.firstName}
-            </span>
-          )}
+    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.84 14.1a6.6 6.6 0 0 1 0-4.22V7.04H2.18a11 11 0 0 0 0 9.9l3.66-2.84Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.04l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z"
+      />
+    </svg>
+  );
+}
+
+export default function SignUpForm({
+  onSwitch,
+  authHook,
+}: {
+  onSwitch?: () => void;
+  authHook: UserAuthHookType;
+}) {
+  const { userInputs, handleInputChange, handleSignUp, loading, error } =
+    authHook;
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-1.5">
+        <h1 className="text-2xl font-semibold tracking-tight">
+          Create your account
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Enter your details to get started.
+        </p>
+      </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSignUp();
+        }}
+        className="flex flex-col gap-5"
+      >
+        <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-2">
+            <Label htmlFor="firstName">First name</Label>
+            <Input
+              value={userInputs.firstName}
+              onChange={handleInputChange}
+              name="firstName"
+              id="firstName"
+              type="text"
+              placeholder="John"
+              required
+              autoComplete="given-name"
+              aria-invalid={!!error.firstName}
+            />
+            {error.firstName && (
+              <span className="text-xs text-destructive">
+                {error.firstName}
+              </span>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="lastName">Last name</Label>
+            <Input
+              value={userInputs.lastName}
+              onChange={handleInputChange}
+              id="lastName"
+              name="lastName"
+              type="text"
+              placeholder="Doe"
+              required
+              autoComplete="family-name"
+              aria-invalid={!!error.lastName}
+            />
+            {error.lastName && (
+              <span className="text-xs text-destructive">{error.lastName}</span>
+            )}
+          </div>
         </div>
-        <div className="grid gap-2">
-          <Label htmlFor="lastName">Last Name</Label>
-          <Input
-            value={userInputs.lastName}
-            onChange={(e) => handleInputChange(e)}
-            id="lastName"
-            name="lastName"
-            type="text"
-            placeholder="Doe"
-            required
-            autoComplete="family-name"
-            className={
-              error.lastName
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""
-            }
-          />
-          {error.lastName && (
-            <span className="text-xs font-bold text-center text-red-500">
-              {error.lastName}
-            </span>
-          )}
-        </div>
+
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
           <Input
             value={userInputs.email}
-            onChange={(e) => handleInputChange(e)}
+            onChange={handleInputChange}
             name="email"
             id="email"
             type="email"
             placeholder="john@example.com"
             required
             autoComplete="email"
-            className={
-              error.email
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""
-            }
+            aria-invalid={!!error.email}
           />
           {error.email && (
-            <span className="text-xs font-bold text-center text-destructive">
-              {error.email}
-            </span>
+            <span className="text-xs text-destructive">{error.email}</span>
           )}
         </div>
+
         <div className="grid gap-2">
-          <div className="flex items-center">
-            <Label htmlFor="password">Password</Label>
-            <a
-              href="#"
-              className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
-            >
-              Forgot your password?
-            </a>
-          </div>
+          <Label htmlFor="password">Password</Label>
           <Input
             value={userInputs.password}
-            onChange={(e) => handleInputChange(e)}
+            onChange={handleInputChange}
             name="password"
             id="password"
             type="password"
             autoComplete="new-password"
             required
-            className={
-              error.password
-                ? "border-destructive focus-visible:ring-destructive"
-                : ""
-            }
+            aria-invalid={!!error.password}
           />
           {error.password && (
-            <span className="text-xs font-bold text-center text-red-500">
-              {error.password}
-            </span>
+            <span className="text-xs text-destructive">{error.password}</span>
           )}
         </div>
-        <div className="flex flex-col justify-center items-center gap-2">
-          <Button
-            disabled={loading}
-            type="button"
-            onClick={handleSignUp}
-            className="w-full cursor-pointer"
-          >
-            {loading ? <Spinner /> : "Sign up"}
-          </Button>
-          <Button type="button" onClick={TempApiRefresh}>Refresh</Button>
-          <Button variant="outline" className="w-full">
-            Sign up with Google
-          </Button>
+
+        <Button
+          disabled={loading}
+          type="submit"
+          className="w-full"
+        >
+          {loading ? <Spinner /> : "Create account"}
+        </Button>
+      </form>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">or</span>
         </div>
       </div>
-    </form>
+
+      <Button variant="outline" type="button" className="w-full gap-2">
+        <GoogleIcon />
+        Sign up with Google
+      </Button>
+
+      <p className="text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <button
+          type="button"
+          onClick={onSwitch}
+          className="cursor-pointer font-medium text-foreground underline-offset-4 hover:underline"
+        >
+          Sign in
+        </button>
+      </p>
+    </div>
   );
 }

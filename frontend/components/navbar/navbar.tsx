@@ -1,6 +1,6 @@
 import Logo from "../logo/logo";
 import { Button } from "../ui/button";
-import AuthModal from "../auth/authModal";
+import Link from "next/link";
 export default function NavBar() {
   return (
     <nav className="border-[0.1px] rounded-4xl shadow-xl max-w-4xl p-2 border-white/20 backdrop-blur-md  absolute top-[4%]  list-none flex gap-4 items-center justify-between w-full">
@@ -15,7 +15,7 @@ export default function NavBar() {
             <Button variant="outline">Sign in</Button>
           </li>
           <li>
-            <AuthModal />
+            <Button><Link href="/application">Open App</Link></Button>
           </li>
         </nav>
       </li>

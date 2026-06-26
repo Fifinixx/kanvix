@@ -1,4 +1,4 @@
-import { NavMenuGroupType } from "../../../../shared/types";
+import { NavMenuGroupType } from "../../../shared/types";
 import NavMenu from "./nav-menu";
 import { SidebarGroup } from "@/components/ui/sidebar";
 

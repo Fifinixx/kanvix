@@ -1,13 +1,13 @@
 import { Request, Response } from "express";
-const REFRESH_COOKIE_OPTIONS = {
-  path:'/api/auth/refresh',
+export const REFRESH_COOKIE_OPTIONS = {
+  path:'/',
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
   sameSite: process.env.NODE_ENV === "production" ? "strict" as const : "lax" as const,
   maxAge: 30 * 24 * 60 * 60 * 1000,
 };
 
-const ACCESS_COOKIE_OPTIONS = {
+export const ACCESS_COOKIE_OPTIONS = {
   path: '/',
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",

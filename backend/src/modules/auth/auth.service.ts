@@ -1,5 +1,6 @@
 import { prisma } from "../../lib/prisma";
 import { SignUpSchema, SignUpType } from "../../../../shared/schemas/signup";
+import { SignInSchema, SignInType } from "../../../../shared/schemas/signin";
 import bcrypt from "bcryptjs";
 import { RefreshToken } from "../../../../shared/types";
 import { GenerateRefreshToken, HashRefreshToken } from "../../lib/crypto.util";
@@ -25,7 +26,30 @@ export async function SignUpService(user: SignUpType) {
   return insertedUser;
 }
 
-export async function SignInService(rawToken: string) {}
+
+// Dummy hash
+const DUMMY_HASH = bcrypt.hashSync("veryverysecretdummyhashformilo", 10);
+
+export async function SignInService(user: SignInType) {
+  console.log("User: ", user)
+  const { email, password } = SignInSchema.parse(user);
+  const existinUser = await prisma.user.findUnique({
+    where: {
+      email,
+    },
+  });
+
+  const checkPassword = await bcrypt.compare(
+    password,
+    existinUser?.passwordHash ?? DUMMY_HASH, // compare dummy hash to have consistent return response time
+  );
+
+  if (!existinUser || !checkPassword) {
+    return undefined;
+  }
+
+  return { user: existinUser, checkPassword };
+}
 
 export async function SignOutService(rawToken: string) {
   const hashedRefreshedToken = HashRefreshToken(rawToken);
@@ -36,12 +60,16 @@ export async function SignOutService(rawToken: string) {
   });
 }
 
-export async function CreateRefreshTokenService({userId, token, expiresAt}: RefreshToken) {
+export async function CreateRefreshTokenService({
+  userId,
+  token,
+  expiresAt,
+}: RefreshToken) {
   const insertedRefreshToken = await prisma.refreshToken.create({
     data: {
       userId,
       tokenHash: token,
-      expiresAt
+      expiresAt,
     },
   });
   return insertedRefreshToken;
@@ -88,7 +116,7 @@ export async function RotateRefreshTokenService(rawToken: string) {
         //Why? Because if someone hits the server with an old token,
         // you know someone has stolen a refresh token, and you can
         // nuke all user sessions
-        revoked: true, 
+        revoked: true,
         replacedBy: newTokenRecord.id,
       },
     });

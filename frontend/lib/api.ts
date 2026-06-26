@@ -1,5 +1,4 @@
 import { type ServiceFn, QueuedRequests } from "../../shared/types";
-import { toast } from "sonner";
 
 let isRefreshingToken = false;
 let queue: QueuedRequests[] = [];
@@ -22,7 +21,7 @@ async function emptyQueue(refreshError: Error | null) {
     }
   }
 }
-export async function customFetch(serviceFn: ServiceFn){
+export async function customFetch(serviceFn: ServiceFn): Promise<Response | 401>{
   // if already fetching refresh token, return a promise
   if (isRefreshingToken) {
     return new Promise((resolve, reject) => {
@@ -37,14 +36,14 @@ export async function customFetch(serviceFn: ServiceFn){
 
     isRefreshingToken = true;
 
-    const refresh = await fetch(`${baseUrl}/api/refresh`, {
+    const refresh = await fetch(`${baseUrl}/auth/refresh`, {
+      method:"POST",
       credentials: "include",
     });
 
     if (!refresh.ok) {
       await emptyQueue(new Error("Session expired"));
-      toast.error("User has been signed out, please login again!");
-      return undefined;
+      return 401;
     }
     const retryAfterRefresh = await serviceFn();
     await emptyQueue(null);
@@ -52,7 +51,7 @@ export async function customFetch(serviceFn: ServiceFn){
   } catch (e: any) {
     console.error(e);
     await emptyQueue(e); // empty queue if error thrown, while refreshing token
-    toast.error(e.message);
+    throw(e);
   } finally {
     isRefreshingToken = false;
   }

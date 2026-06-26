@@ -43,14 +43,12 @@ export default function ErrorHandler(
   if(err instanceof z.ZodError){
     console.log(err);
     const error = fromZodError(err);
-    return res.status(400).json({message: error});
+    return res.status(400).json({message: "Invalid inputs, please try again!", error:error});
   }
   if(err instanceof JsonWebTokenError){
-    console.error(err);
     return res.status(401).json({message:"Invalid jwt token"});
   }
   if (err instanceof PrismaClientKnownRequestError) {
-    console.log(err);
     const { message, status } = mapKnownRequestError(err);
     return res.status(status).json({ message });
   }

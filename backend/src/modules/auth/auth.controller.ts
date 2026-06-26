@@ -14,12 +14,16 @@ import {
   SetRefreshTokenCookie,
 } from "../../lib/cookies.util";
 
+import {
+  ACCESS_COOKIE_OPTIONS,
+  REFRESH_COOKIE_OPTIONS,
+} from "../../lib/cookies.util";
+
 export async function SignUpController(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  console.log(req.body);
   const insertedUser = await SignUpService(req.body.data);
 
   const accessToken = GenerateAccessToken({
@@ -41,8 +45,6 @@ export async function SignUpController(
   return res.status(200).json({
     message: "User registration succesful!",
     user: { id: insertedUser.id, email: insertedUser.email },
-    accessToken,
-    rawToken,
   });
 }
 
@@ -50,7 +52,33 @@ export async function SignInController(
   req: Request,
   res: Response,
   next: NextFunction,
-) {}
+) {
+  const user = req.body.data;
+  const checkAuth = await SignInService(user);
+  if (!checkAuth || !checkAuth.checkPassword) {
+      return res.status(401).json({ message: "Incorrect username/password" });
+  }
+  const accessToken = GenerateAccessToken({
+    id: checkAuth.user.id,
+    email: checkAuth.user.email,
+  });
+  SetAccessTokenCookie(res, accessToken);
+
+  const rawToken = GenerateRefreshToken();
+  const hashedRefreshedToken = HashRefreshToken(rawToken);
+  const formedRefreshToken = {
+    userId: checkAuth.user.id,
+    token: hashedRefreshedToken,
+    expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days expiry
+  };
+  await CreateRefreshTokenService(formedRefreshToken);
+  SetRefreshTokenCookie(res, rawToken);
+
+  return res.status(200).json({
+    message: "User signin succesful!",
+    user: { id: checkAuth.user.id, email: checkAuth.user.email },
+  });
+}
 
 export async function SignOutController(
   req: Request,
@@ -71,6 +99,7 @@ export async function RotateRefreshTokenController(
   res: Response,
   next: NextFunction,
 ) {
+  console.log("Refresh Cookie", req.cookies.refreshToken);
   const rawToken = req.cookies.refreshToken;
 
   if (!rawToken) {
@@ -83,10 +112,9 @@ export async function RotateRefreshTokenController(
     return res.status(401).json({ message: "No valid session found" });
   }
 
-  res.cookie("refreshToken", result.newRefreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: "strict",
-  });
-  return res.status(200).json({message:"Session validated."})
+  res
+    .cookie("refreshToken", result.newRefreshToken, REFRESH_COOKIE_OPTIONS)
+    .cookie("accessToken", result.newAccessToken, ACCESS_COOKIE_OPTIONS);
+
+  return res.status(200).json({ message: "Session validated." });
 }

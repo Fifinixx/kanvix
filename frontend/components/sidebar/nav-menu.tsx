@@ -4,12 +4,7 @@ import {
   SidebarMenuItem,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-import { type NavMenuType } from "../../../../shared/types";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { type NavMenuType } from "../../../shared/types";
 import Link from "next/link";
 
 export default function NavMenu({ menu }: { menu: NavMenuType }) {

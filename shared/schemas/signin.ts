@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const SignInSchema = z.object({
+const SignInSchema = z.object({
+  email: z.email("Please enter a valid email."),
   password: z
     .string()
     .min(5, { message: "Password must be atleast 5 characters long" })
@@ -13,5 +14,9 @@ export const SignInSchema = z.object({
       message: "Password must contain at least one special character",
     }),
 });
+
+type SignInType = z.infer<typeof SignInSchema>;
+export { SignInSchema };
+export type { SignInType };
 
 
