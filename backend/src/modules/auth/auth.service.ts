@@ -31,7 +31,6 @@ export async function SignUpService(user: SignUpType) {
 const DUMMY_HASH = bcrypt.hashSync("veryverysecretdummyhashformilo", 10);
 
 export async function SignInService(user: SignInType) {
-  console.log("User: ", user)
   const { email, password } = SignInSchema.parse(user);
   const existinUser = await prisma.user.findUnique({
     where: {

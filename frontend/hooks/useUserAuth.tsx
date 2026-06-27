@@ -53,7 +53,10 @@ export function useUserAuth() {
         return;
       }
       toast.success("User registration succesful");
-      router.push("/application");
+      // Hard navigation: same reason as sign-in — guarantee the freshly-set
+      // cross-origin cookies are committed before proxy.ts reads them, and
+      // bypass any stale client-router cache entry for /application.
+      window.location.assign("/application");
     } catch (e: any) {
       toast.error(e.message || "Error while signing up!");
     } finally {
@@ -91,7 +94,13 @@ export function useUserAuth() {
         return;
       }
       toast.success("User signed in!");
-      router.push("/application");
+      // Hard navigation (not router.push): guarantees the freshly-set
+      // cross-origin refreshToken cookie is committed before proxy.ts reads it,
+      // and bypasses any stale App Router client cache entry for /application
+      // left behind by an earlier proxy redirect.
+      //  router.push("/application");
+      // router.refresh();
+      window.location.assign("/application");
     } catch (e: any) {
       toast.error(e.message || "Error signing in");
     } finally {
@@ -101,7 +110,7 @@ export function useUserAuth() {
 
   async function handleSignOut() {
     try {
-      const signout = await SignOutApiService();
+      await SignOutApiService();
       router.push("/");
     } catch (e: any) {
       toast.error(e.message || "Error occured while signing out");

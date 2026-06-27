@@ -93,7 +93,7 @@ export default function SignInForm({
           )}
         </div>
 
-        <Button type="submit" className="w-full">
+        <Button disabled={loading} type="submit" className="w-full">
           {loading ? <Spinner /> : "Sign in"}
         </Button>
       </form>
@@ -115,7 +115,7 @@ export default function SignInForm({
       <p className="text-center text-sm text-muted-foreground">
         Don&apos;t have an account?{" "}
         <button
-          type="submit"
+          type="button"
           onClick={onSwitch}
           className="cursor-pointer font-medium text-foreground underline-offset-4 hover:underline"
         >
