@@ -4,13 +4,10 @@ const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
 const ACCESS_TOKEN_EXPIRY = process.env
   .ACCESS_TOKEN_EXPIRY as jwt.SignOptions["expiresIn"];
 
-export function GenerateAccessToken(user: {
-  email: string;
-  id: string;
-}): string {
+export function GenerateAccessToken(id:string): string {
   if (!ACCESS_TOKEN_SECRET || !ACCESS_TOKEN_EXPIRY)
     throw new Error("Access token details are missing");
-  return jwt.sign(user, ACCESS_TOKEN_SECRET, {
+  return jwt.sign({id}, ACCESS_TOKEN_SECRET, {
     expiresIn: ACCESS_TOKEN_EXPIRY,
   });
 }

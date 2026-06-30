@@ -24,12 +24,9 @@ export async function SignUpController(
   res: Response,
   next: NextFunction,
 ) {
-  const insertedUser = await SignUpService(req.body.data);
-
-  const accessToken = GenerateAccessToken({
-    id: insertedUser.id,
-    email: insertedUser.email,
-  });
+  const { insertedUser } = await SignUpService(req.body.data);
+  const { id, ...user } = insertedUser;
+  const accessToken = GenerateAccessToken(id);
   SetAccessTokenCookie(res, accessToken);
 
   const rawToken = GenerateRefreshToken();
@@ -44,7 +41,7 @@ export async function SignUpController(
 
   return res.status(200).json({
     message: "User registration succesful!",
-    user: { id: insertedUser.id, email: insertedUser.email },
+    user: { ...user },
   });
 }
 
@@ -53,15 +50,12 @@ export async function SignInController(
   res: Response,
   next: NextFunction,
 ) {
-  const user = req.body.data;
-  const checkAuth = await SignInService(user);
+  const checkAuth = await SignInService(req.body.data);
   if (!checkAuth || !checkAuth.checkPassword) {
-      return res.status(401).json({ message: "Incorrect username/password" });
+    return res.status(401).json({ message: "Incorrect username/password" });
   }
-  const accessToken = GenerateAccessToken({
-    id: checkAuth.user.id,
-    email: checkAuth.user.email,
-  });
+  const { id, ...user } = checkAuth.user;
+  const accessToken = GenerateAccessToken(id);
   SetAccessTokenCookie(res, accessToken);
 
   const rawToken = GenerateRefreshToken();
@@ -76,7 +70,7 @@ export async function SignInController(
 
   return res.status(200).json({
     message: "User signin succesful!",
-    user: { id: checkAuth.user.id, email: checkAuth.user.email },
+    user: { ...user },
   });
 }
 

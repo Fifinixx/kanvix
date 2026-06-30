@@ -23,6 +23,7 @@ model User {
   comments      Comment[]
   createdAt     DateTime       @default(now())
   refreshTokens RefreshToken[]
+  notifications Notification[]
 }
 
 model RefreshToken {
@@ -140,4 +141,12 @@ model Activity {
   createdAt DateTime @default(now())
 
   @@index([projectId, createdAt])
+}
+
+model Notification {
+  id     String  @id @default(cuid())
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+  text   String
+  read   Boolean @default(false)
 }

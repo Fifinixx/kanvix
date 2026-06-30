@@ -23,4 +23,13 @@ export interface NavMenuType{
   items?:NavMenuType[]
 }
 
+export interface UserType{
+  id:string,
+  email:string,
+  firstName:string,
+  lastName:string
+}
+
+
+
 export type NavMenuGroupType = NavMenuType[];

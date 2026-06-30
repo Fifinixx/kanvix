@@ -5,13 +5,14 @@ import { useRouter } from "next/navigation";
 import { customFetch } from "@/lib/api";
 import { Me } from "@/services/auth.service";
 import ApplicationSkeleton from "./applicationSkeleton";
+import { useId } from "./context/context";
 
 export default function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "authed">("loading");
-
+  const {id, setId} = useId();
   useEffect(() => {
-    let active = true; // guard against StrictMode double-run / unmount
+    let active = true; // guard against StrictMode
 
     (async () => {
       const res = await customFetch(Me);
@@ -20,8 +21,11 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
         if (active) router.replace("/auth");
         return;
       }
-
-      if (active) setStatus("authed");
+      if (active) {
+        const data = await res.json();
+        setId(data.id);
+        setStatus("authed");
+      }
     })();
 
     return () => {

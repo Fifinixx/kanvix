@@ -5,27 +5,51 @@ import bcrypt from "bcryptjs";
 import { RefreshToken } from "../../../../shared/types";
 import { GenerateRefreshToken, HashRefreshToken } from "../../lib/crypto.util";
 import { GenerateAccessToken } from "../../lib/jwt.util";
+import { v4 as uuidv4 } from "uuid";
+
 
 export async function SignUpService(user: SignUpType) {
   const { firstName, lastName, email, password } = user;
-  const checkUser = SignUpSchema.parse({
+  SignUpSchema.parse({
     firstName,
     lastName,
     email,
     password,
   });
   const salt = await bcrypt.genSalt(10);
-  const hasedPassword = await bcrypt.hash(password, salt);
+  const hashedPassword = await bcrypt.hash(password, salt);
   const formedUser = {
     firstName,
     lastName,
     email,
-    passwordHash: hasedPassword,
+    passwordHash: hashedPassword,
   };
-  const insertedUser = await prisma.user.create({ data: formedUser });
-  return insertedUser;
+  const formedOrganisation = {
+    name: `${firstName}'s Organization `,
+    slug: uuidv4(),
+  };
+  const formedMembership = {
+    role: "ADMIN" as const,
+    userId: "",
+    orgId: "",
+  };
+  const { insertedUser, insertedOrg, updateMembership } =
+    await prisma.$transaction(async (tx) => {
+      const insertedUser = await tx.user.create({
+        data: formedUser
+      });
+      formedMembership.userId = insertedUser.id;
+      const insertedOrg = await tx.organization.create({
+        data: formedOrganisation,
+      });
+      formedMembership.orgId = insertedOrg.id;
+      const updateMembership = await tx.membership.create({
+        data: formedMembership,
+      });
+      return { insertedUser, insertedOrg, updateMembership };
+    });
+  return { insertedUser, insertedOrg };
 }
-
 
 // Dummy hash
 const DUMMY_HASH = bcrypt.hashSync("veryverysecretdummyhashformilo", 10);
@@ -35,7 +59,7 @@ export async function SignInService(user: SignInType) {
   const existinUser = await prisma.user.findUnique({
     where: {
       email,
-    },
+    }
   });
 
   const checkPassword = await bcrypt.compare(
@@ -79,7 +103,9 @@ export async function RotateRefreshTokenService(rawToken: string) {
 
   const existingRefreshToken = await prisma.refreshToken.findUnique({
     where: { tokenHash: hashIncomingToken },
-    include: { user: true },
+    include: {
+      user: true,
+    },
   });
 
   if (
@@ -93,10 +119,7 @@ export async function RotateRefreshTokenService(rawToken: string) {
   const { user } = existingRefreshToken;
 
   const newRefreshToken = GenerateRefreshToken();
-  const newAccessToken = GenerateAccessToken({
-    id: user.id,
-    email: user.email,
-  });
+  const newAccessToken = GenerateAccessToken(user.id);
   const newHashedToken = HashRefreshToken(newRefreshToken);
 
   await prisma.$transaction(async (tx) => {

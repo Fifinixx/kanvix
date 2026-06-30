@@ -7,6 +7,8 @@ import { HealthRouter } from "./modules/health/health.route";
 import ErrorHandler from "./middlewares/error.middleware";
 import { AuthRouter } from "./modules/auth/auth.route";
 import cookieParser from "cookie-parser";
+import { ApplicationRouter } from "./modules/application/application.route";
+import { UserRouter } from "./modules/user/user.routes";
 
 const app = express();
 const PORT = 9000;
@@ -37,8 +39,9 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use("/api/auth", AuthRouter);
-
+app.use("/api/auth",  AuthRouter);
+app.use("/api/user", UserRouter);
+app.use("/application", ApplicationRouter)
 app.use(ErrorHandler);
 
 httpServer.listen(PORT, () => {
