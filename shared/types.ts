@@ -30,6 +30,14 @@ export interface UserType{
   lastName:string
 }
 
+export interface NotificationType{
+  id:string,
+  userId:string,
+  text:string,
+  read:boolean,
+  createdAt: Date
+}
+
 
 
 export type NavMenuGroupType = NavMenuType[];

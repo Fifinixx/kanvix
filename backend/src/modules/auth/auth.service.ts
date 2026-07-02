@@ -7,7 +7,6 @@ import { GenerateRefreshToken, HashRefreshToken } from "../../lib/crypto.util";
 import { GenerateAccessToken } from "../../lib/jwt.util";
 import { v4 as uuidv4 } from "uuid";
 
-
 export async function SignUpService(user: SignUpType) {
   const { firstName, lastName, email, password } = user;
   SignUpSchema.parse({
@@ -24,29 +23,49 @@ export async function SignUpService(user: SignUpType) {
     email,
     passwordHash: hashedPassword,
   };
-  const formedOrganisation = {
+  const formedOrganization = {
     name: `${firstName}'s Organization `,
     slug: uuidv4(),
+    ownerId:""
   };
   const formedMembership = {
     role: "ADMIN" as const,
     userId: "",
     orgId: "",
   };
-  const { insertedUser, insertedOrg, updateMembership } =
+  const formedNotification = {
+    userId: "",
+    text: `An organization by the name of ${firstName}'s Org has been created for you.`,
+    read: false,
+  };
+  const { insertedUser, insertedOrg, updateMembership, insertedNotification } =
     await prisma.$transaction(async (tx) => {
       const insertedUser = await tx.user.create({
-        data: formedUser
+        data: formedUser,
       });
-      formedMembership.userId = insertedUser.id;
+
+      formedOrganization.ownerId = insertedUser.id;
       const insertedOrg = await tx.organization.create({
-        data: formedOrganisation,
+        data: formedOrganization,
       });
+
+      formedMembership.userId = insertedUser.id;
       formedMembership.orgId = insertedOrg.id;
       const updateMembership = await tx.membership.create({
         data: formedMembership,
       });
-      return { insertedUser, insertedOrg, updateMembership };
+
+      formedNotification.userId = insertedUser.id;
+      const insertedNotification = await tx.notification.create({
+        data: formedNotification,
+      });
+
+      return {
+        insertedUser,
+        insertedOrg,
+        updateMembership,
+        insertedNotification,
+      };
     });
   return { insertedUser, insertedOrg };
 }
@@ -59,7 +78,7 @@ export async function SignInService(user: SignInType) {
   const existinUser = await prisma.user.findUnique({
     where: {
       email,
-    }
+    },
   });
 
   const checkPassword = await bcrypt.compare(

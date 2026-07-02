@@ -19,7 +19,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 import { useUserAuth } from "@/hooks/useUserAuth";
 import { useId } from "@/app/application/context/context";
 import { useEffect, useState } from "react";
-import { FetchUserService } from "@/services/user.service";
+import { FetchUserApiService } from "@/services/user.service";
 import { customFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { type UserType } from "../../../shared/types";
@@ -28,13 +28,13 @@ import { SidebarFooterSkeleton } from "./sidebar-footer-skeleton";
 export default function SidebarFooterSection() {
   const router = useRouter();
   const { handleSignOut } = useUserAuth();
-  const { id, setId } = useId();
+  const { id } = useId();
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<UserType>();
   async function fetchUser(){
     setLoading(true);
     if(id) {
-      const res = await customFetch(() => FetchUserService(id));
+      const res = await customFetch(() => FetchUserApiService(id));
       if(res === 401){
         router.replace("/auth");
         setLoading(false);

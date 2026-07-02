@@ -24,11 +24,12 @@ model User {
   createdAt     DateTime       @default(now())
   refreshTokens RefreshToken[]
   notifications Notification[]
+  organizations Organization[]
 }
 
 model RefreshToken {
   id         String   @id @default(cuid())
-  user       User     @relation(fields: [userId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tokenHash  String   @unique
   revoked    Boolean  @default(false)
   expiresAt  DateTime
@@ -41,6 +42,8 @@ model Organization {
   id          String       @id @default(cuid())
   name        String
   slug        String       @unique
+  owner       User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId     String
   memberships Membership[]
   projects    Project[]
   invites     Invite[]
@@ -144,9 +147,12 @@ model Activity {
 }
 
 model Notification {
-  id     String  @id @default(cuid())
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
-  text   String
-  read   Boolean @default(false)
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  text      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }

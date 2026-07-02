@@ -21,7 +21,7 @@ async function emptyQueue(refreshError: Error | null) {
     }
   }
 }
-export async function customFetch(serviceFn: ServiceFn): Promise<Response | 401>{
+export async function customFetch(serviceFn: ServiceFn): Promise<Response | 401 >{
   // if already fetching refresh token, return a promise
   if (isRefreshingToken) {
     return new Promise((resolve, reject) => {
