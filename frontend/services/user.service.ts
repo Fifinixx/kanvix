@@ -5,7 +5,7 @@ export async function FetchUserApiService(userId: string) {
   return res;
 }
 
-export async function FetchNotificationApiService(userId: string) {
+export async function FetchNotificationsApiService(userId: string) {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_URL}/user/notifications`,
     {
@@ -20,11 +20,9 @@ export async function UpdateNotificationsApiService(id:string) {
     `${process.env.NEXT_PUBLIC_BASE_URL}/user/notifications`,
     {
       method: "PATCH",
-      body: JSON.stringify({
-        data: { id },
-      }),
       credentials:"include"
     },
   );
   return res;
 }
+

@@ -24,6 +24,7 @@ export async function SignUpController(
   res: Response,
   next: NextFunction,
 ) {
+
   const { insertedUser } = await SignUpService(req.body.data);
   const { id, ...user } = insertedUser;
   const accessToken = GenerateAccessToken(id);
@@ -93,7 +94,6 @@ export async function RotateRefreshTokenController(
   res: Response,
   next: NextFunction,
 ) {
-  console.log("Refresh Cookie", req.cookies.refreshToken);
   const rawToken = req.cookies.refreshToken;
 
   if (!rawToken) {

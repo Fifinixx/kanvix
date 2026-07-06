@@ -15,3 +15,16 @@ export function notificationCounter(
 
   return count;
 }
+
+export function formatPrismaDate(dateInput: Date | string): string {
+  const date = new Date(dateInput);
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: '2-digit',
+    day: '2-digit',
+    year: '2-digit',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).format(date);
+}

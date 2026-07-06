@@ -111,7 +111,7 @@ export function useUserAuth() {
   async function handleSignOut() {
     try {
       await SignOutApiService();
-      router.push("/");
+      router.replace("/");
     } catch (e: any) {
       toast.error(e.message || "Error occured while signing out");
     }

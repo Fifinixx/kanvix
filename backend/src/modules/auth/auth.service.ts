@@ -5,7 +5,7 @@ import bcrypt from "bcryptjs";
 import { RefreshToken } from "../../../../shared/types";
 import { GenerateRefreshToken, HashRefreshToken } from "../../lib/crypto.util";
 import { GenerateAccessToken } from "../../lib/jwt.util";
-import { v4 as uuidv4 } from "uuid";
+import { OrganizationAddService } from "../organization/organization.service";
 
 export async function SignUpService(user: SignUpType) {
   const { firstName, lastName, email, password } = user;
@@ -23,36 +23,27 @@ export async function SignUpService(user: SignUpType) {
     email,
     passwordHash: hashedPassword,
   };
-  const formedOrganization = {
-    name: `${firstName}'s Organization `,
-    slug: uuidv4(),
-    ownerId:""
-  };
-  const formedMembership = {
-    role: "ADMIN" as const,
-    userId: "",
-    orgId: "",
-  };
+
   const formedNotification = {
     userId: "",
     text: `An organization by the name of ${firstName}'s Org has been created for you.`,
     read: false,
   };
-  const { insertedUser, insertedOrg, updateMembership, insertedNotification } =
+  const { insertedUser, insertedOrganization, insertedMembership, insertedNotification } =
     await prisma.$transaction(async (tx) => {
+      
       const insertedUser = await tx.user.create({
         data: formedUser,
       });
 
-      formedOrganization.ownerId = insertedUser.id;
-      const insertedOrg = await tx.organization.create({
-        data: formedOrganization,
-      });
+      const {insertedOrganization, insertedMembership} = await OrganizationAddService(tx,
+        `${firstName}'s Organization `,
+        insertedUser.id,
+      );
 
-      formedMembership.userId = insertedUser.id;
-      formedMembership.orgId = insertedOrg.id;
-      const updateMembership = await tx.membership.create({
-        data: formedMembership,
+      const updateInsertedUser = await tx.user.update({
+        where: { id: insertedUser.id },
+        data: { selectedOrganizationId: insertedOrganization.id },
       });
 
       formedNotification.userId = insertedUser.id;
@@ -62,12 +53,12 @@ export async function SignUpService(user: SignUpType) {
 
       return {
         insertedUser,
-        insertedOrg,
-        updateMembership,
+        insertedOrganization,
+        insertedMembership,
         insertedNotification,
       };
     });
-  return { insertedUser, insertedOrg };
+  return { insertedUser, insertedOrganization };
 }
 
 // Dummy hash

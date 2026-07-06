@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/popover";
 import { Spinner } from "../ui/spinner";
 import { useNotification } from "@/hooks/useNotification";
+import { formatPrismaDate } from "@/lib/utils";
 
 
 export function ApplicationNotification() {
@@ -31,16 +32,17 @@ export function ApplicationNotification() {
           </span>
         </div>
       </PopoverTrigger>
-      <PopoverContent className="w-full rounded-2xl p-2 max-w-96">
+      <PopoverContent className="w-full  rounded-4xl p-4 max-w-104">
         {!loading ? (
           notifications.map((item) => {
             return (
               <div
                 key={item.id}
-                className="flex text-primary justify-center items-center gap-2 p-2 bg-sidebar-accent"
+                className="flex text-primary justify-center items-center gap-4 p-2 bg-sidebar-accent"
               >
-                <InfoIcon />
+                <InfoIcon size={32}/>
                 {item.text}
+                <span className="text-xs text-neutral-500">{formatPrismaDate(item.createdAt)}</span>
               </div>
             );
           })

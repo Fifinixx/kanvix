@@ -9,6 +9,7 @@ import { AuthRouter } from "./modules/auth/auth.route";
 import cookieParser from "cookie-parser";
 import { ApplicationRouter } from "./modules/application/application.route";
 import { UserRouter } from "./modules/user/user.routes";
+import { OrganizationRouter } from "./modules/organization/organization.route";
 
 const app = express();
 const PORT = 9000;
@@ -39,9 +40,16 @@ const limiter = rateLimit({
 
 app.use(limiter);
 
-app.use("/api/auth",  AuthRouter);
+app.use("/api/auth", AuthRouter);
 app.use("/api/user", UserRouter);
-app.use("/application", ApplicationRouter)
+app.use("/api/organization", OrganizationRouter)
+app.use("/application", ApplicationRouter);
+app.use((req, res, next) => {
+    res.status(404).json({
+        status: 404,
+        message: "The requested resource could not be found."
+    });
+});
 app.use(ErrorHandler);
 
 httpServer.listen(PORT, () => {

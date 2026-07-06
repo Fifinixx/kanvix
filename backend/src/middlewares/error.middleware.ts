@@ -40,6 +40,7 @@ export default function ErrorHandler(
   res: Response,
   next: NextFunction,
 ) {
+  console.log(err);
   if(err instanceof z.ZodError){
     console.log(err);
     const error = fromZodError(err);

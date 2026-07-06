@@ -28,6 +28,10 @@ export interface UserType{
   email:string,
   firstName:string,
   lastName:string
+  memberships:Memberships[]
+  ownedOrganizations: Organization[],
+  selectedOrganizationId:string,
+  selectedOrganization:Organization
 }
 
 export interface NotificationType{
@@ -36,6 +40,20 @@ export interface NotificationType{
   text:string,
   read:boolean,
   createdAt: Date
+}
+
+export interface Organization{
+  id:string,
+  name:string,
+  slug:string,
+  ownerId?:string
+}
+
+export interface Memberships{
+  id:string,
+  org:Organization,
+  orgId:string,
+  role:string,
 }
 
 

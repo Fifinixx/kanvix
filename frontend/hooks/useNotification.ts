@@ -5,7 +5,7 @@ import { customFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
-  FetchNotificationApiService,
+  FetchNotificationsApiService,
   UpdateNotificationsApiService,
 } from "@/services/user.service";
 import { notificationCounter } from "@/lib/utils";
@@ -16,11 +16,14 @@ export function useNotification() {
   const { id } = useId();
   const [loading, setLoading] = useState(false);
   const [notifications, setNotifications] = useState<NotificationType[]>([]);
+
   const [notificationCount, setNotificationCount] = useState<number>(0);
-  const [optimisticNotificationCount, setOptimisticNotificationCount] = useOptimistic<
-    number,
-    number
-  >(notificationCount, (currentState, newCount) => newCount);
+
+  const [optimisticNotificationCount, setOptimisticNotificationCount] =
+    useOptimistic<number, number>(
+      notificationCount,
+      (currentState, newCount) => newCount,
+    );
 
   async function routing(res: Response | 401) {
     if (res === 401) {
@@ -36,10 +39,10 @@ export function useNotification() {
     }
     return res;
   }
-  async function fetchUser() {
+  async function fetchNotifications() {
     setLoading(true);
     if (id) {
-      const res = await customFetch(() => FetchNotificationApiService(id));
+      const res = await customFetch(() => FetchNotificationsApiService(id));
       const response = await routing(res);
       if (response === 401) return;
       const data = await response.json();
@@ -50,23 +53,32 @@ export function useNotification() {
   }
 
   useEffect(() => {
-    fetchUser();
+    fetchNotifications();
   }, []);
 
   function updateNotifications() {
-    if (!id) return; 
+    if (!id) return;
     startTransition(async () => {
       try {
         setOptimisticNotificationCount(0);
+
         const res = await customFetch(() => UpdateNotificationsApiService(id));
-        const response = await routing(res); 
+
+        const response = await routing(res);
         if (response === 401) return;
+
         setNotificationCount(0);
       } catch (e) {
-        console.warn("Notfication update failed. UI rolled back.")
+        console.warn("Notfication update failed. UI rolled back.");
       }
     });
   }
 
-  return { loading, notifications, notificationCount, optimisticNotificationCount, updateNotifications };
+  return {
+    loading,
+    notifications,
+    notificationCount,
+    optimisticNotificationCount,
+    updateNotifications,
+  };
 }

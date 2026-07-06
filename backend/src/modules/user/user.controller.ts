@@ -4,6 +4,7 @@ import {
   FetchNotificationService,
   UpdateNotificationService,
 } from "./user.service";
+
 export async function FetchUserController(req: Request, res: Response) {
   const userId = req.user as { id: string; iat: number; exp: number };
   const fetchedUser = await FetchUserService(userId.id);
@@ -14,6 +15,7 @@ export async function FetchUserController(req: Request, res: Response) {
     .status(200)
     .json({ message: "User fetched succesfully", user: fetchedUser });
 }
+
 export async function FetchNotificationController(req: Request, res: Response) {
   const userId = req.user as { id: string; iat: number; exp: number };
   const fetchedUser = await FetchUserService(userId.id);
@@ -23,6 +25,7 @@ export async function FetchNotificationController(req: Request, res: Response) {
   const fetchedNotifications = await FetchNotificationService(userId.id);
   return res.status(200).json({message:"Notifications fetched succesfully!", notifications:fetchedNotifications})
 }
+
 export async function UpdateNotificationController(
   req: Request,
   res: Response,

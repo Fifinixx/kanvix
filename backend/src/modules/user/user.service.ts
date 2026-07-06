@@ -4,6 +4,28 @@ export async function FetchUserService(userId: string) {
     where: {
       id: userId,
     },
+    include: {
+      memberships:{
+        include:{
+          org:{
+            select:{
+              id:true,
+              name:true,
+              slug:true
+            }
+          }
+        }
+      },
+     // ownedOrganizations:true,
+      selectedOrganization:{
+        select:{
+          id:true,
+          name:true,
+          slug:true
+        }
+      },
+      
+    },
     omit: {
       passwordHash: true,
       createdAt: true,

@@ -13,50 +13,18 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "../ui/dropdown-menu";
-import { toast } from "sonner";
 import { Settings, MoreVertical, User, LogOut } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
-import { useUserAuth } from "@/hooks/useUserAuth";
-import { useId } from "@/app/application/context/context";
-import { useEffect, useState } from "react";
-import { FetchUserApiService } from "@/services/user.service";
-import { customFetch } from "@/lib/api";
-import { useRouter } from "next/navigation";
-import { type UserType } from "../../../shared/types";
+
+
 import { SidebarFooterSkeleton } from "./sidebar-footer-skeleton";
+import { useUser } from "@/hooks/useUser";
 
 export default function SidebarFooterSection() {
-  const router = useRouter();
-  const { handleSignOut } = useUserAuth();
-  const { id } = useId();
-  const [loading, setLoading] = useState(false);
-  const [user, setUser] = useState<UserType>();
-  async function fetchUser(){
-    setLoading(true);
-    if(id) {
-      const res = await customFetch(() => FetchUserApiService(id));
-      if(res === 401){
-        router.replace("/auth");
-        setLoading(false);
-        return;
-      }
-      if(!res.ok){
-        const data = await res.json();
-        toast.error(data.message || "Error while fetching user");
-        setLoading(false);
-        return;
-      }
-      const data = await res.json();
-      setUser(data.user);
-      setLoading(false);
-    }
-  }
-  useEffect(() => {
-    fetchUser();
-  }, [])
-  if(loading) return <SidebarFooterSkeleton />
+  const {loading, user, handleSignOut} = useUser();
+  if (loading) return <SidebarFooterSkeleton />;
   return (
-   <SidebarFooter>
+    <SidebarFooter>
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton asChild>
@@ -75,13 +43,10 @@ export default function SidebarFooterSection() {
                 className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               >
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src="/avatars/debmalya.jpg" alt="Debmalya" />
+                  <AvatarImage src="https://github.com/shadcn.png" alt="Debmalya" />
                   <AvatarFallback className="rounded-lg bg-primary text-primary-foreground">
-                    {(user?.firstName
-                      ? user.firstName[0]
-                      : "") +( user?.lastName
-                        ? user?.lastName[0]
-                        : "")}
+                    {(user?.firstName ? user.firstName[0] : "") +
+                      (user?.lastName ? user?.lastName[0] : "")}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
