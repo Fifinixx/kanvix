@@ -1,3 +1,5 @@
+"use client";
+
 import { Monitor, Globe, ChevronRight } from "lucide-react";
 
 import {
@@ -10,57 +12,46 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useProject } from "@/app/application/context/project-context";
 
 export default function SidebarContentSection() {
-  const projects = [
-    {
-      name: "RAYMOND PC",
-      icon: Monitor,
-      items: [
-        { title: "Dashboard", url: "/projects/raymond-pc/dashboard" },
-        { title: "Products", url: "/projects/raymond-pc/products" },
-        { title: "Orders", url: "/projects/raymond-pc/orders" },
-      ],
-    },
-    {
-      name: "debmalya.dev",
-      icon: Globe,
-      items: [
-        { title: "Analytics", url: "/projects/portfolio/analytics" },
-        { title: "Blogs", url: "/projects/portfolio/blogs" },
-        { title: "Settings", url: "/projects/portfolio/settings" },
-      ],
-    },
-  ];
+  const { projects } = useProject();
   return (
     <>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarSeparator />
           <SidebarMenu>
-            {projects.map((project) => (
-              <Collapsible
-                key={project.name}
-                asChild
-                defaultOpen={false}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton>
-                      <project.icon className="h-4 w-4" />
-                      <span>{project.name}</span>
-                      <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
+            {projects?.length === 0 ? (
+              <p className="mx-2 mt-4 text-xs text-primary">
+                No Projects found
+              </p>
+            ) : (
+              projects?.map((project) => (
+                <Collapsible
+                  key={project.name}
+                  asChild
+                  defaultOpen={false}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton>
+                        {/* <project.icon className="h-4 w-4" /> */}
+                        <span>{project.name}</span>
+                        <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
 
-                  <CollapsibleContent>
+                    {/* <CollapsibleContent>
                     <SidebarMenuSub>
                       {project.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
@@ -72,10 +63,11 @@ export default function SidebarContentSection() {
                         </SidebarMenuSubItem>
                       ))}
                     </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
+                  </CollapsibleContent> */}
+                  </SidebarMenuItem>
+                </Collapsible>
+              ))
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

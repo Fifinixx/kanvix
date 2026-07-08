@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { customFetch } from "@/lib/api";
 import { Me } from "@/services/auth.service";
 import ApplicationSkeleton from "./applicationSkeleton";
-import { useId } from "./context/context";
+import { useId } from "./context/id-context";
 
 export default function AuthGuard({ children }: { children: ReactNode }) {
   const router = useRouter();
@@ -16,8 +16,7 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
 
     (async () => {
       const res = await customFetch(Me);
-
-      if (res === 401) {
+      if (res === 401) {  
         if (active) router.replace("/auth");
         return;
       }
@@ -32,7 +31,6 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
       active = false;
     };
   }, [router]);
-
   if (status === "loading") return <ApplicationSkeleton />;
   return <>{children}</>;
 }

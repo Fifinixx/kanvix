@@ -24,3 +24,27 @@ export async function OrganizationAddService(
 
   return { insertedOrganization, insertedMembership };
 }
+
+export async function OrganizationFetchService(userId: string, orgId: string) {
+  const org = await prisma.organization.findUnique({
+  where: { id: orgId },
+  include: {
+    memberships: { 
+      where: { userId: userId }
+    }
+  }
+});
+  if (!org) {
+    return 404;
+  }
+  if(org.memberships.length === 0 ){
+    return 403;
+  }
+  const fetchedOrganization = await prisma.organization.findUnique({
+    where: { id: orgId },
+    include: {
+      projects: true,
+    },
+  });
+  return fetchedOrganization;
+}

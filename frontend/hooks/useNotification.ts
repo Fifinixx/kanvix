@@ -9,7 +9,7 @@ import {
   UpdateNotificationsApiService,
 } from "@/services/user.service";
 import { notificationCounter } from "@/lib/utils";
-import { useId } from "@/app/application/context/context";
+import { useId } from "@/app/application/context/id-context";
 
 export function useNotification() {
   const router = useRouter();

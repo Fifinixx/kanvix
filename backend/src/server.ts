@@ -10,6 +10,7 @@ import cookieParser from "cookie-parser";
 import { ApplicationRouter } from "./modules/application/application.route";
 import { UserRouter } from "./modules/user/user.routes";
 import { OrganizationRouter } from "./modules/organization/organization.route";
+import { ProjectRouter } from "./modules/project/project.routes";
 
 const app = express();
 const PORT = 9000;
@@ -43,6 +44,7 @@ app.use(limiter);
 app.use("/api/auth", AuthRouter);
 app.use("/api/user", UserRouter);
 app.use("/api/organization", OrganizationRouter)
+app.use("/api/project", ProjectRouter)
 app.use("/application", ApplicationRouter);
 app.use((req, res, next) => {
     res.status(404).json({

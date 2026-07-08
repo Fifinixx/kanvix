@@ -10,6 +10,8 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
+import { ProjectAddDialog } from "./project-add-dialog"
+
 export function KanbanEmptyBoard() {
   return (
   <div className="h-full flex-1 flex items-center justify-center">
@@ -25,7 +27,7 @@ export function KanbanEmptyBoard() {
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent className="flex-row justify-center gap-2">
-        <Button>Create Project</Button>
+        <ProjectAddDialog />
         <Button variant="outline">Join An Organization</Button>
       </EmptyContent>
       <Button

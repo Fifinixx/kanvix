@@ -34,21 +34,23 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useOrganization } from "@/hooks/useOrganization";
+import { useOrganization } from "@/app/application/context/organization-context";
 
 export default function SideBarHeaderSection() {
   const {
     memberships,
-    loading,
     selectedOrganizationId,
     selectedOrganization,
+    loading,
     addOrganization,
     fetchUser,
     organizationInput,
     setOrganizationInput,
+    loadingOrg
   } = useOrganization();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-  if (loading) return <p>Loading</p>;
+  if (loadingOrg) return <p>Loading</p>;
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -70,7 +72,7 @@ export default function SideBarHeaderSection() {
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
                         {
-                          memberships.find(
+                          memberships?.find(
                             (item) => item.orgId === selectedOrganizationId,
                           )?.role
                         }
@@ -88,7 +90,7 @@ export default function SideBarHeaderSection() {
                   <DropdownMenuLabel className="text-xs text-muted-foreground">
                     Workspaces
                   </DropdownMenuLabel>
-                  {memberships.map((membership, index) => (
+                  {memberships?.map((membership, index) => (
                     <DropdownMenuItem
                       key={membership.org.id}
                       //onClick={() => setActiveOrganization(organization)}

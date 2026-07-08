@@ -18,7 +18,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 
 import { SidebarFooterSkeleton } from "./sidebar-footer-skeleton";
-import { useUser } from "@/hooks/useUser";
+import { useUser } from "@/app/application/context/user-context";
 
 export default function SidebarFooterSection() {
   const {loading, user, handleSignOut} = useUser();

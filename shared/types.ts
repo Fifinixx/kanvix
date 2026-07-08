@@ -46,7 +46,9 @@ export interface Organization{
   id:string,
   name:string,
   slug:string,
-  ownerId?:string
+  ownerId?:string,
+  memberships?: Memberships[]
+  projects?:Project[] 
 }
 
 export interface Memberships{
@@ -55,6 +57,39 @@ export interface Memberships{
   orgId:string,
   role:string,
 }
+
+export interface Project {
+  name:string,
+  orgId:string,
+  tasks: Task[],
+  activities: Activities[]
+}
+
+enum Priority{
+  LOW,
+  MEDIUM,
+  HIGH
+}
+
+enum TaskStatus{
+  TODO,
+  IN_PROGRESS,
+  DONE
+}
+export interface Task {
+  title:String,
+  description?:String,
+  status:TaskStatus,
+  priority:Priority,
+  position:GLfloat,
+  dueDate?:Date,
+  projectId:String
+  assigneeId?:String,
+  comments:Comments[]
+}
+
+export interface Comments{}
+export interface Activities{}
 
 
 
