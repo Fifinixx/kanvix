@@ -30,9 +30,10 @@ app.use(express.json());
 app.use(cookieParser());
 
 const httpServer = createServer(app);
+// TODO: need to add this per route.
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  limit: 100,
+  limit: 1000,
   standardHeaders: "draft-8",
   legacyHeaders: false,
   ipv6Subnet: 56,

@@ -3,13 +3,13 @@
 import { useState, createContext, ReactNode, useContext } from "react";
 
 type IdContextType = {
-  id: string | undefined;
-  setId: React.Dispatch<React.SetStateAction<string | undefined>>;
+  id: string | null;
+  setId: React.Dispatch<React.SetStateAction<string | null>>;
 };
 const IdContext = createContext<IdContextType | undefined>(undefined);
 
 export function IdContextProvider({ children }: { children: ReactNode }) {
-  const [id, setId] = useState<string | undefined>(undefined);
+  const [id, setId] = useState<string | null>(null);
 
   return (
     <IdContext.Provider value={{ id, setId }}>{children}</IdContext.Provider>

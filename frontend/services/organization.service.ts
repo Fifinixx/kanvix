@@ -27,3 +27,16 @@ export async function OrganizationFetchApiService(orgId: string) {
   );
   return res;
 }
+
+export async function OrganizationSwitchApiService(orgId:string, userId:string){
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/organization/switch`, {
+    method:"PUT",
+    headers:{
+      "Content-Type":"Application/json"
+    },
+    body:JSON.stringify({data:{orgId}}),
+    credentials:"include"
+  });
+
+  return res;
+}

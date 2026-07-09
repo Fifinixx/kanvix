@@ -10,6 +10,7 @@ import { type Project } from "../../../../shared/types";
 
 type ProjectContextType = {
   projects: Project[] | null;
+  loadingOrg:boolean;
   addProject: (name: string) => Promise<void>;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
 };
@@ -49,7 +50,7 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
     }
   }
   return (
-    <ProjectContext.Provider value={{ projects, addProject, setProject }}>
+    <ProjectContext.Provider value={{ projects, addProject, setProject, loadingOrg:rest.loadingOrg }}>
       {children}
     </ProjectContext.Provider>
   );
@@ -57,7 +58,6 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
 
 export function useProject() {
   const context = useContext(ProjectContext);
-  if (!context)
-    throw new Error("useProject must be used inside <ProjectContextProvider>");
+  if(!context) throw new Error("useProject must be used inside <ProjectContextProvider>");
   return context;
 }

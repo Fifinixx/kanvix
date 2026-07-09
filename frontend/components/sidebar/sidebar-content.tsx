@@ -20,9 +20,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useProject } from "@/app/application/context/project-context";
+import { SidebarContentSkeleton } from "./sidebar-content-skeleton";
 
 export default function SidebarContentSection() {
-  const { projects } = useProject();
+  const { projects, loadingOrg } = useProject();
   return (
     <>
       <SidebarContent>
@@ -30,7 +31,7 @@ export default function SidebarContentSection() {
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarSeparator />
           <SidebarMenu>
-            {projects?.length === 0 ? (
+            {loadingOrg ? <SidebarContentSkeleton /> : projects?.length === 0 ? (
               <p className="mx-2 mt-4 text-xs text-primary">
                 No Projects found
               </p>

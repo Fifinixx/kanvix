@@ -27,17 +27,17 @@ export async function OrganizationAddService(
 
 export async function OrganizationFetchService(userId: string, orgId: string) {
   const org = await prisma.organization.findUnique({
-  where: { id: orgId },
-  include: {
-    memberships: { 
-      where: { userId: userId }
-    }
-  }
-});
+    where: { id: orgId },
+    include: {
+      memberships: {
+        where: { userId: userId },
+      },
+    },
+  });
   if (!org) {
     return 404;
   }
-  if(org.memberships.length === 0 ){
+  if (org.memberships.length === 0) {
     return 403;
   }
   const fetchedOrganization = await prisma.organization.findUnique({
@@ -47,4 +47,13 @@ export async function OrganizationFetchService(userId: string, orgId: string) {
     },
   });
   return fetchedOrganization;
+}
+
+export async function OrganizationSwitchService(orgId: string, userId: string) {
+  const updatedUser = await prisma.user.update({
+    where: { id: userId },
+    data: { selectedOrganizationId: orgId },
+  });
+
+  return updatedUser;
 }

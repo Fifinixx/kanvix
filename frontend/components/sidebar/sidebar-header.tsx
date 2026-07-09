@@ -35,6 +35,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useOrganization } from "@/app/application/context/organization-context";
+import { SidebarHeaderSkeleton } from "./sidebar-header-skeleton";
 
 export default function SideBarHeaderSection() {
   const {
@@ -42,15 +43,16 @@ export default function SideBarHeaderSection() {
     selectedOrganizationId,
     selectedOrganization,
     loading,
+    switchOrganization,
     addOrganization,
     fetchUser,
     organizationInput,
     setOrganizationInput,
-    loadingOrg
+    loadingOrg,
   } = useOrganization();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  if (loadingOrg) return <p>Loading</p>;
+  if (loadingOrg) return <SidebarHeaderSkeleton />;
   return (
     <>
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
@@ -88,12 +90,12 @@ export default function SideBarHeaderSection() {
                   sideOffset={4}
                 >
                   <DropdownMenuLabel className="text-xs text-muted-foreground">
-                    Workspaces
+                    Organizations
                   </DropdownMenuLabel>
                   {memberships?.map((membership, index) => (
                     <DropdownMenuItem
                       key={membership.org.id}
-                      //onClick={() => setActiveOrganization(organization)}
+                      onClick={() => switchOrganization(membership.org.id)}
                       className="gap-2 p-2 cursor-pointer"
                     >
                       <div className="flex size-6 items-center justify-center rounded-sm border">

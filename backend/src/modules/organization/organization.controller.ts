@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   OrganizationAddService,
   OrganizationFetchService,
+  OrganizationSwitchService,
 } from "./organization.service";
 
 export async function OrganizationAddController(req: Request, res: Response) {
@@ -44,4 +45,14 @@ export async function OrganizationFetchController(req: Request, res: Response) {
     message: "Organization fetched succesfully!",
     organization: fetchedOrganization,
   });
+}
+
+export async function OrganizationSwitchController(req:Request, res:Response){
+  const userId = req.user as { id: string; iat: number; exp: number };
+  const {orgId} = req.body.data;
+  if(!orgId){
+    return res.status(400).json({message:"Invalid details provided!"})
+  }
+  const updatedUser = await OrganizationSwitchService(orgId, userId.id);
+  return res.json({message:"Organization switched succesfully!", user:updatedUser});
 }
