@@ -15,6 +15,7 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
     let active = true; // guard against StrictMode
 
     (async () => {
+      setStatus("loading");
       const res = await customFetch(Me);
       if (res === 401) {  
         if (active) router.replace("/auth");

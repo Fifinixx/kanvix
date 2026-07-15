@@ -1,12 +1,11 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { PlusIcon, Bell } from "lucide-react";
 import { ApplicationNotification } from "./application-notification";
 import { useProject } from "@/app/application/context/project-context";
 import { useOrganization } from "@/app/application/context/organization-context";
+import { ProjectAddDialog } from "../kanban/project-add-dialog";
 
 export default function AppHeader({
   projectName = "Untitled project",
@@ -28,10 +27,7 @@ export default function AppHeader({
         </h1>
         <h1 className="truncate text-sm font-semibold">{projectName}</h1>
         <div className="flex items-center gap-4">
-          <Button size="sm" className="gap-1.5" onClick={onNewProject}>
-            <PlusIcon />
-            New project
-          </Button>
+            <ProjectAddDialog />
           <ApplicationNotification />
         </div>
       </div>

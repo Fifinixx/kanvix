@@ -11,7 +11,7 @@ import {
 import { notificationCounter } from "@/lib/utils";
 import { useId } from "@/app/application/context/id-context";
 
-export function useNotification() {
+ function useNotification() {
   const router = useRouter();
   const { id } = useId();
   const [loading, setLoading] = useState(false);

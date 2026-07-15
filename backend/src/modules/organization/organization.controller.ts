@@ -31,10 +31,8 @@ export async function OrganizationFetchController(req: Request, res: Response) {
       .json({ message: "Invalid organization id provided." });
   }
   const fetchedOrganization = await OrganizationFetchService(userId.id, orgId);
-    if (fetchedOrganization === 404) {
-    return res
-      .status(403)
-      .json({ message: "Organization not found!" });
+  if (fetchedOrganization === 404) {
+    return res.status(403).json({ message: "Organization not found!" });
   }
   if (fetchedOrganization === 403) {
     return res
@@ -47,12 +45,18 @@ export async function OrganizationFetchController(req: Request, res: Response) {
   });
 }
 
-export async function OrganizationSwitchController(req:Request, res:Response){
+export async function OrganizationSwitchController(
+  req: Request,
+  res: Response,
+) {
   const userId = req.user as { id: string; iat: number; exp: number };
-  const {orgId} = req.body.data;
-  if(!orgId){
-    return res.status(400).json({message:"Invalid details provided!"})
+  const { orgId } = req.body.data;
+  if (!orgId) {
+    return res.status(400).json({ message: "Invalid details provided!" });
   }
   const updatedUser = await OrganizationSwitchService(orgId, userId.id);
-  return res.json({message:"Organization switched succesfully!", user:updatedUser});
+  return res.json({
+    message: "Organization switched succesfully!",
+    user: updatedUser,
+  });
 }

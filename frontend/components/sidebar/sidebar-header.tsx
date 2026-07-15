@@ -36,20 +36,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useOrganization } from "@/app/application/context/organization-context";
 import { SidebarHeaderSkeleton } from "./sidebar-header-skeleton";
+import { useUser } from "@/app/application/context/user-context";
 
 export default function SideBarHeaderSection() {
-  const {
+   const {
     memberships,
     selectedOrganizationId,
     selectedOrganization,
-    loading,
-    switchOrganization,
+     switchOrganization,
     addOrganization,
     fetchUser,
     organizationInput,
     setOrganizationInput,
     loadingOrg,
-  } = useOrganization();
+   } = useOrganization();
+
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   if (loadingOrg) return <SidebarHeaderSkeleton />;

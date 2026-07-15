@@ -1,4 +1,4 @@
-export async function FetchUserApiService(userId: string) {
+export async function FetchUserApiService() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/user/profile`, {
     credentials: "include",
   });

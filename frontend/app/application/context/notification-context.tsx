@@ -1,0 +1,125 @@
+"use client";
+
+import { type NotificationType } from "../../../../shared/types";
+import {
+  useState,
+  useEffect,
+  useOptimistic,
+  startTransition,
+  useContext,
+  createContext,
+  ReactNode,
+} from "react";
+import { customFetch } from "@/lib/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  FetchNotificationsApiService,
+  UpdateNotificationsApiService,
+} from "@/services/user.service";
+import { notificationCounter } from "@/lib/utils";
+import { useId } from "@/app/application/context/id-context";
+
+type NotificationContextType = {
+  loading: boolean;
+  notifications: NotificationType[];
+  notificationCount: number;
+  optimisticNotificationCount: number;
+  updateNotifications: () => void;
+};
+
+const NotificationContext = createContext<NotificationContextType | null>(null);
+
+export function NotificationContextProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const router = useRouter();
+  const { id } = useId();
+  const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState<NotificationType[]>([]);
+
+  const [notificationCount, setNotificationCount] = useState<number>(0);
+
+  const [optimisticNotificationCount, setOptimisticNotificationCount] =
+    useOptimistic<number, number>(
+      notificationCount,
+      (currentState, newCount) => newCount,
+    );
+
+  async function routing(res: Response | 401) {
+    if (res === 401) {
+      router.replace("/auth");
+      setLoading(false);
+      return res;
+    }
+    if (!res.ok) {
+      const data = await res.json();
+      toast.error(data.message || "Error while fetching notifications");
+      setLoading(false);
+      return res;
+    }
+    return res;
+  }
+  async function fetchNotifications() {
+    try {
+      if (id) {
+        const res = await customFetch(() => FetchNotificationsApiService(id));
+        const response = await routing(res);
+        if (response === 401) return;
+        const data = await response.json();
+        setNotifications(data.notifications);
+        setNotificationCount(notificationCounter(data.notifications));
+      }
+    } catch (e) {
+      toast.error("Failed to fetch notifications!");
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  function updateNotifications() {
+    if (!id) return;
+    startTransition(async () => {
+      try {
+        setOptimisticNotificationCount(0);
+
+        const res = await customFetch(() => UpdateNotificationsApiService(id));
+
+        const response = await routing(res);
+        if (response === 401) return;
+
+        setNotificationCount(0);
+      } catch (e) {
+        console.warn("Notfication update failed. UI rolled back.");
+      }
+    });
+  }
+  return (
+    <NotificationContext.Provider
+      value={{
+        loading,
+        notifications,
+        notificationCount,
+        optimisticNotificationCount,
+        updateNotifications,
+      }}
+    >
+      {children}
+    </NotificationContext.Provider>
+  );
+}
+export function useNotification() {
+  const context = useContext(NotificationContext);
+  if (!context)
+    throw new Error(
+      "useNotification must be used inside <NotificationContextProvider>",
+    );
+  return context;
+}

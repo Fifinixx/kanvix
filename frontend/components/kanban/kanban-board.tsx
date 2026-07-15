@@ -1,22 +1,14 @@
+"use client";
+
 import { KanbanTaskItem } from "./kanban-task-item";
 import { KanbanEmptyBoard } from "./kanban-empty";
-
+import { useProject } from "@/app/application/context/project-context";
 export default function KanbanBoard() {
+  const { projects } = useProject();
+  if (projects?.length === 0) return <KanbanEmptyBoard />;
   return (
     <>
-      <KanbanEmptyBoard />
+      <div>Project name: {projects && projects[0].name}</div>
     </>
-    // <div className="flex justify-around items-start p-6">
-    //   <div className="flex flex-col justify-center items-center">
-    //     <h1 className="text-3xl text-primary font-semibold">Done</h1>
-    //     <KanbanTaskItem />
-    //   </div>
-    //   <div>
-    //     <h1 className="text-3xl text-primary font-semibold">In Progress</h1>
-    //   </div>
-    //   <div>
-    //     <h1 className="text-3xl text-primary  font-semibold">Pending</h1>
-    //   </div>
-    // </div>
   );
 }

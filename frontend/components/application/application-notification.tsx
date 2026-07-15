@@ -7,7 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Spinner } from "../ui/spinner";
-import { useNotification } from "@/hooks/useNotification";
+import { useNotification } from "@/app/application/context/notification-context";
 import { formatPrismaDate } from "@/lib/utils";
 
 

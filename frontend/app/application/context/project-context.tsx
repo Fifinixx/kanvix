@@ -13,6 +13,8 @@ type ProjectContextType = {
   loadingOrg:boolean;
   addProject: (name: string) => Promise<void>;
   setProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  fetchProject: (orgId:string) => Promise<void>
+  switchProject : () => Promise<void>
 };
 
 const ProjectContext = createContext<ProjectContextType | null>(null);
@@ -49,8 +51,14 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
       console.error(e);
     }
   }
+
+  async function fetchProject(projId:string){
+    
+  }
+
+  async function switchProject(){}
   return (
-    <ProjectContext.Provider value={{ projects, addProject, setProject, loadingOrg:rest.loadingOrg }}>
+    <ProjectContext.Provider value={{ projects, addProject, setProject, loadingOrg:rest.loadingOrg, switchProject, fetchProject }}>
       {children}
     </ProjectContext.Provider>
   );

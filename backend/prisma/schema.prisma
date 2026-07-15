@@ -26,6 +26,8 @@ model User {
   notifications          Notification[]
   selectedOrganization   Organization?  @relation("SelectedOrganization", fields: [selectedOrganizationId], references: [id])
   selectedOrganizationId String?
+  selectedProject        Project?       @relation("SelectedProject", fields: [selectedProjectId], references: [id])
+  selectedProjectId      String?
   ownedOrganizations     Organization[] @relation("CurrentOwner")
 }
 
@@ -92,6 +94,8 @@ model Project {
   tasks      Task[]
   activities Activity[]
   createdAt  DateTime     @default(now())
+
+  selectedProject User[] @relation("SelectedProject")
 
   @@index([orgId])
 }

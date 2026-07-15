@@ -24,7 +24,6 @@ type UserContextType = {
 
 const UserContext = createContext<UserContextType | null>(null);
 export function UserContextProvider({ children }: { children: ReactNode }) {
-  const { id } = useId();
   const [user, setUser] = useState<UserType | null>(null);
   const router = useRouter();
   const { handleSignOut } = useUserAuth();
@@ -32,8 +31,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   async function fetchUser() {
     try {
       setLoading(true);
-      if (id) {
-        const res = await customFetch(() => FetchUserApiService(id));
+        const res = await customFetch(() => FetchUserApiService());
         if (res === 401) {
           router.replace("/auth");
           setLoading(false);
@@ -46,9 +44,7 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
           return;
         }
         const data = await res.json();
-        //console.log("Fetched User:", data);
         setUser(data.user);
-      }
     } catch (e) {
       console.error(e, "Failed to fetch user!");
     } finally {
@@ -56,8 +52,8 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     }
   }
   useEffect(() => {
-    if(id) fetchUser();
-  }, [id]);
+    fetchUser();
+  }, []);
   return (
     <UserContext.Provider value={{ user, handleSignOut, fetchUser, loading }}>
       {children}

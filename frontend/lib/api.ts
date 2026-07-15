@@ -21,7 +21,9 @@ async function emptyQueue(refreshError: Error | null) {
     }
   }
 }
-export async function customFetch(serviceFn: ServiceFn): Promise<Response | 401 >{
+export async function customFetch(
+  serviceFn: ServiceFn,
+): Promise<Response | 401> {
   // if already fetching refresh token, return a promise
   if (isRefreshingToken) {
     return new Promise((resolve, reject) => {
@@ -34,10 +36,17 @@ export async function customFetch(serviceFn: ServiceFn): Promise<Response | 401 
 
     if (response.status !== 401) return response;
 
+    // double check here for concurrent requests that may pass the previous if check
+    if (isRefreshingToken) {
+      return new Promise((resolve, reject) => {
+        queue.push({ service: serviceFn, resolve, reject });
+      });
+    }
+
     isRefreshingToken = true;
 
     const refresh = await fetch(`${baseUrl}/auth/refresh`, {
-      method:"POST",
+      method: "POST",
       credentials: "include",
     });
 
@@ -51,7 +60,7 @@ export async function customFetch(serviceFn: ServiceFn): Promise<Response | 401 
   } catch (e: any) {
     console.error(e);
     await emptyQueue(e); // empty queue if error thrown, while refreshing token
-    throw(e);
+    throw e;
   } finally {
     isRefreshingToken = false;
   }

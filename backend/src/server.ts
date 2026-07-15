@@ -4,6 +4,7 @@ import cors from "cors";
 import { createServer } from "node:http";
 import { rateLimit } from "express-rate-limit";
 import { HealthRouter } from "./modules/health/health.route";
+import JwtValidateMiddleware from "./middlewares/jwt.middleware";
 import ErrorHandler from "./middlewares/error.middleware";
 import { AuthRouter } from "./modules/auth/auth.route";
 import cookieParser from "cookie-parser";
@@ -11,6 +12,7 @@ import { ApplicationRouter } from "./modules/application/application.route";
 import { UserRouter } from "./modules/user/user.routes";
 import { OrganizationRouter } from "./modules/organization/organization.route";
 import { ProjectRouter } from "./modules/project/project.routes";
+
 
 const app = express();
 const PORT = 9000;
@@ -43,15 +45,16 @@ const limiter = rateLimit({
 app.use(limiter);
 
 app.use("/api/auth", AuthRouter);
-app.use("/api/user", UserRouter);
-app.use("/api/organization", OrganizationRouter)
-app.use("/api/project", ProjectRouter)
-app.use("/application", ApplicationRouter);
+// use grouping if lists get bigger
+app.use("/api/user", JwtValidateMiddleware, UserRouter);
+app.use("/api/organization", JwtValidateMiddleware, OrganizationRouter);
+app.use("/api/project", JwtValidateMiddleware, ProjectRouter);
+app.use("/application", JwtValidateMiddleware, ApplicationRouter);
 app.use((req, res, next) => {
-    res.status(404).json({
-        status: 404,
-        message: "The requested resource could not be found."
-    });
+  res.status(404).json({
+    status: 404,
+    message: "The requested resource could not be found.",
+  });
 });
 app.use(ErrorHandler);
 
