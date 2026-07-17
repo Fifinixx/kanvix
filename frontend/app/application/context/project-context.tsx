@@ -3,27 +3,33 @@
 import { useState, useContext, createContext, ReactNode } from "react";
 import { customFetch } from "@/lib/api";
 import { useOrganization } from "@/app/application/context/organization-context";
-import { ProjectAddApiService } from "@/services/project.service";
+import {
+  ProjectAddApiService,
+  ProjectFetchApiService,
+} from "@/services/project.service";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { type Project } from "../../../../shared/types";
 
 type ProjectContextType = {
   projects: Project[] | null;
-  loadingOrg:boolean;
+  loadingProj: boolean;
   addProject: (name: string) => Promise<void>;
-  setProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  fetchProject: (orgId:string) => Promise<void>
-  switchProject : () => Promise<void>
+  selectedProject: Project | null;
+  setSelectedProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  fetchProject: (orgId: string) => Promise<void>;
+  switchProject: () => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextType | null>(null);
 
 export function ProjectContextProvider({ children }: { children: ReactNode }) {
-  const { organization, ...rest } = useOrganization();
-  const projects = organization?.projects || null;
-  const selectedOrganizationId = rest.selectedOrganizationId;
-  const [project, setProject] = useState<Project | null>(null);
+  const { selectedOrganization, ...rest } = useOrganization();
+  const projects = selectedOrganization?.projects || null;
+  const selectedOrganizationId = rest?.selectedOrganizationId || null;
+  const selectedProjectId = rest?.selectedProjectId || null;
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [loadingProj, setLoadingProj] = useState(rest?.loadingOrg);
   const router = useRouter();
 
   async function addProject(name: string) {
@@ -52,13 +58,40 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function fetchProject(projId:string){
-    
+  async function fetchProject(projId: string) {
+    try {
+      const res = await customFetch(() => ProjectFetchApiService(projId));
+      if (res === 401) {
+        router.push("/auth");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.message || "Error while fetching project!");
+      }
+      const data = await res.json();
+      setSelectedProject(data);
+    } catch (e) {
+      console.error(e);
+      toast.error("Something went wrong while project details!");
+    } finally {
+      setLoadingProj(false);
+    }
   }
 
-  async function switchProject(){}
+  async function switchProject() {}
   return (
-    <ProjectContext.Provider value={{ projects, addProject, setProject, loadingOrg:rest.loadingOrg, switchProject, fetchProject }}>
+    <ProjectContext.Provider
+      value={{
+        projects,
+        addProject,
+        selectedProject,
+        setSelectedProject,
+        loadingProj,
+        switchProject,
+        fetchProject,
+      }}
+    >
       {children}
     </ProjectContext.Provider>
   );
@@ -66,6 +99,7 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
 
 export function useProject() {
   const context = useContext(ProjectContext);
-  if(!context) throw new Error("useProject must be used inside <ProjectContextProvider>");
+  if (!context)
+    throw new Error("useProject must be used inside <ProjectContextProvider>");
   return context;
 }

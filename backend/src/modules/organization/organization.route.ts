@@ -7,15 +7,8 @@ import {
 
 const OrganizationRouter = express.Router();
 
-OrganizationRouter.post(
-  "/add",
-  OrganizationAddController,
-);
-OrganizationRouter.post(
-  "/fetch",
-  OrganizationFetchController,
-);
-
-OrganizationRouter.put("/switch", OrganizationSwitchController);
+OrganizationRouter.get("/:orgId", OrganizationFetchController);
+OrganizationRouter.post("/add",  OrganizationAddController);
+OrganizationRouter.patch("/switch", OrganizationSwitchController);
 
 export { OrganizationRouter };

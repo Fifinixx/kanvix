@@ -15,13 +15,8 @@ export async function OrganizationAddApiService(name: string) {
 
 export async function OrganizationFetchApiService(orgId: string) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL}/organization/fetch`,
+    `${process.env.NEXT_PUBLIC_BASE_URL}/organization/${orgId}`,
     {
-      method: "POST",
-      headers: {
-        "Content-Type": "Application/json",
-      },
-      body: JSON.stringify({ data: { orgId } }),
       credentials:"include"
     },
   );
@@ -30,7 +25,7 @@ export async function OrganizationFetchApiService(orgId: string) {
 
 export async function OrganizationSwitchApiService(orgId:string, userId:string){
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/organization/switch`, {
-    method:"PUT",
+    method:"PATCH",
     headers:{
       "Content-Type":"Application/json"
     },

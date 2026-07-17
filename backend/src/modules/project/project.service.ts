@@ -8,11 +8,10 @@ export async function ProjectAddService(
 ) {
   const fetchUser = await FetchUserService(userId);
   const checkMembership = fetchUser?.memberships?.find(
-    (org) => org.id === orgId,
+    (org) => org.orgId === orgId,
   );
 
   if (!checkMembership) return 401;
-
   const organization = await prisma.organization.findUniqueOrThrow({
     where: { id: orgId },
   });
@@ -32,21 +31,16 @@ export async function ProjectAddService(
   return instertedProject;
 }
 
-export async function ProjectFetchService(userId:string, orgId:string, projId: string) {
-    const fetchUser = await FetchUserService(userId);
+export async function ProjectFetchService(userId: string, projId: string) {
+  const fetchUser = await FetchUserService(userId);
+  const fetchedProject = await prisma.project.findUnique({
+    where: { id: projId },
+  });
   const checkMembership = fetchUser?.memberships?.find(
-    (org) => org.id === orgId,
+    (org) => org.id === fetchedProject?.orgId,
   );
 
-  if (!checkMembership) return 401;
+  if (!checkMembership) return 403;
 
-  const fetchProject = await prisma.project.findUniqueOrThrow({where:{id:projId}});
-
-  return fetchProject;
-}
-
-export async function CheckAdminProjectService(orgId: string, userId: string) {
-  const fetchOrg = await prisma.organization.findUniqueOrThrow({
-    where: { id: orgId },
-  });
+  return fetchedProject;
 }

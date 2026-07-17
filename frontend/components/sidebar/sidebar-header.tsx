@@ -93,7 +93,7 @@ export default function SideBarHeaderSection() {
                   <DropdownMenuLabel className="text-xs text-muted-foreground">
                     Organizations
                   </DropdownMenuLabel>
-                  {memberships?.map((membership, index) => (
+                  {memberships?.filter(membership => membership.org.id !== selectedOrganizationId).map((membership, index) => (
                     <DropdownMenuItem
                       key={membership.org.id}
                       onClick={() => switchOrganization(membership.org.id)}

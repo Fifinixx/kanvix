@@ -40,7 +40,7 @@ export async function SignUpController(
   await CreateRefreshTokenService(formedRefreshToken);
   SetRefreshTokenCookie(res, rawToken);
 
-  return res.status(200).json({
+  return res.status(201).json({
     message: "User registration succesful!",
     user: { ...user },
   });

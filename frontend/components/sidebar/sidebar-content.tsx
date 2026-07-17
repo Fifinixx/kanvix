@@ -21,9 +21,11 @@ import {
 } from "@/components/ui/collapsible";
 import { useProject } from "@/app/application/context/project-context";
 import { SidebarContentSkeleton } from "./sidebar-content-skeleton";
+import { useOrganization } from "@/app/application/context/organization-context";
 
 export default function SidebarContentSection() {
-  const { projects, loadingOrg } = useProject();
+  const { selectedOrganization, loadingOrg } = useOrganization();
+
   return (
     <>
       <SidebarContent>
@@ -31,14 +33,14 @@ export default function SidebarContentSection() {
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarSeparator />
           <SidebarMenu>
-            {loadingOrg ? <SidebarContentSkeleton /> : projects?.length === 0 ? (
+            {loadingOrg ? <SidebarContentSkeleton /> : selectedOrganization?.projects?.length === 0 ? (
               <p className="mx-2 mt-4 text-xs text-primary">
                 No Projects found
               </p>
             ) : (
-              projects?.map((project) => (
+              selectedOrganization?.projects?.map((project) => (
                 <Collapsible
-                  key={project.name}
+                  key={project.id}
                   asChild
                   defaultOpen={false}
                   className="group/collapsible"

@@ -32,6 +32,8 @@ export interface UserType{
   ownedOrganizations: Organization[],
   selectedOrganizationId:string,
   selectedOrganization:Organization
+  selectedProjectId:string,
+  selectedProject:Project
 }
 
 export interface NotificationType{
@@ -59,6 +61,7 @@ export interface Memberships{
 }
 
 export interface Project {
+  id:string
   name:string,
   orgId:string,
   tasks: Task[],
@@ -90,7 +93,6 @@ export interface Task {
 
 export interface Comments{}
 export interface Activities{}
-
 
 
 export type NavMenuGroupType = NavMenuType[];

@@ -32,6 +32,7 @@ export async function OrganizationFetchService(userId: string, orgId: string) {
       memberships: {
         where: { userId: userId },
       },
+      projects:true
     },
   });
   if (!org) {
@@ -40,12 +41,9 @@ export async function OrganizationFetchService(userId: string, orgId: string) {
   if (org.memberships.length === 0) {
     return 403;
   }
-  const fetchedOrganization = await prisma.organization.findUnique({
-    where: { id: orgId },
-    include: {
-      projects: true,
-    },
-  });
+
+  const {memberships, ...fetchedOrganization} = org;
+
   return fetchedOrganization;
 }
 

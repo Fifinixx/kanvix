@@ -47,7 +47,7 @@ app.use(limiter);
 app.use("/api/auth", AuthRouter);
 // use grouping if lists get bigger
 app.use("/api/user", JwtValidateMiddleware, UserRouter);
-app.use("/api/organization", JwtValidateMiddleware, OrganizationRouter);
+app.use("/api/organization",  JwtValidateMiddleware, OrganizationRouter);
 app.use("/api/project", JwtValidateMiddleware, ProjectRouter);
 app.use("/application", JwtValidateMiddleware, ApplicationRouter);
 app.use((req, res, next) => {

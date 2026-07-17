@@ -19,7 +19,7 @@ type UserContextType = {
   user: UserType | null;
   handleSignOut: () => Promise<void>;
   fetchUser: () => Promise<void>;
-  loading: boolean;
+  loadingUser: boolean;
 };
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -27,20 +27,17 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserType | null>(null);
   const router = useRouter();
   const { handleSignOut } = useUserAuth();
-  const [loading, setLoading] = useState(false);
+  const [loadingUser, setLoadingUser] = useState(true);
   async function fetchUser() {
     try {
-      setLoading(true);
         const res = await customFetch(() => FetchUserApiService());
         if (res === 401) {
           router.replace("/auth");
-          setLoading(false);
           return;
         }
         if (!res.ok) {
           const data = await res.json();
           toast.error(data.message || "Error while fetching user");
-          setLoading(false);
           return;
         }
         const data = await res.json();
@@ -48,14 +45,14 @@ export function UserContextProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error(e, "Failed to fetch user!");
     } finally {
-      setLoading(false);
+      setLoadingUser(false);
     }
   }
   useEffect(() => {
     fetchUser();
   }, []);
   return (
-    <UserContext.Provider value={{ user, handleSignOut, fetchUser, loading }}>
+    <UserContext.Provider value={{ user, handleSignOut, fetchUser, loadingUser }}>
       {children}
     </UserContext.Provider>
   );

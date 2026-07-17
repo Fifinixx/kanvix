@@ -5,6 +5,7 @@ import {
   OrganizationSwitchService,
 } from "./organization.service";
 
+
 export async function OrganizationAddController(req: Request, res: Response) {
   const userId = req.user as { id: string; iat: number; exp: number };
   const { name } = req.body.data;
@@ -16,23 +17,23 @@ export async function OrganizationAddController(req: Request, res: Response) {
     name,
     userId.id,
   );
-  return res.status(200).json({
+  return res.status(201).json({
     message: "Organization added succesfully!",
     organization: insertedOrganization,
   });
 }
 
-export async function OrganizationFetchController(req: Request, res: Response) {
-  const { orgId } = req.body.data;
+export async function OrganizationFetchController(req: Request<{orgId:string}>, res: Response) {
+  const  orgId  = req.params.orgId;
   const userId = req.user as { id: string; iat: number; exp: number };
-  if (!orgId) {
+  if (!orgId || !orgId) {
     return res
       .status(400)
       .json({ message: "Invalid organization id provided." });
   }
   const fetchedOrganization = await OrganizationFetchService(userId.id, orgId);
   if (fetchedOrganization === 404) {
-    return res.status(403).json({ message: "Organization not found!" });
+    return res.status(404).json({ message: "Organization not found!" });
   }
   if (fetchedOrganization === 403) {
     return res
