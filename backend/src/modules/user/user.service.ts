@@ -1,6 +1,6 @@
 import { prisma } from "../../lib/prisma";
 export async function FetchUserService(userId: string) {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findUniqueOrThrow({
     where: {
       id: userId,
     },
@@ -16,7 +16,6 @@ export async function FetchUserService(userId: string) {
           }
         }
       },
-     // ownedOrganizations:true,
       selectedOrganization:{
         select:{
           id:true,
@@ -31,9 +30,6 @@ export async function FetchUserService(userId: string) {
       createdAt: true,
     },
   });
-  if (!user) {
-    return undefined;
-  }
   return user;
 }
 

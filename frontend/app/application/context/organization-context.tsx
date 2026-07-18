@@ -52,7 +52,7 @@ export function OrganizationContextProvider({
   const { id } = useId();
   const router = useRouter();
   const selectedOrganizationId = user?.selectedOrganizationId || null;
-  const selectedProjectId = user?.selectedProjectId || null;
+  const selectedProjectId = user?.memberships?.find(org => selectedOrganizationId === org.orgId)?.selectedProjectId || null;
   const memberships = user?.memberships || null;
   const [projects, setProjects] = useState<Project[] | null>(null)
   const [selectedOrganization, setSelectedOrganization] =

@@ -1,5 +1,9 @@
 import { Request, Response } from "express";
-import { ProjectAddService, ProjectFetchService } from "./project.service";
+import {
+  ProjectAddService,
+  ProjectFetchService,
+  ProjectSwitchService,
+} from "./project.service";
 
 export async function ProjectAddController(req: Request, res: Response) {
   const userId = req.user as { id: string; iat: number; exp: number };
@@ -13,7 +17,7 @@ export async function ProjectAddController(req: Request, res: Response) {
     setDefault,
     userId.id,
   );
-  if (insertedProject === 401)
+  if (insertedProject === 403)
     return res.status(401).json({
       message: "You do not have permission to perform the current action!",
     });
@@ -23,11 +27,14 @@ export async function ProjectAddController(req: Request, res: Response) {
   });
 }
 
-export async function ProjectFetchController(req: Request<{projId:string}>, res: Response) {
+export async function ProjectFetchController(
+  req: Request<{ projId: string }>,
+  res: Response,
+) {
   const userId = req.user as { id: string; iat: number; exp: number };
   const { projId } = req.params;
 
-  if (!userId.id  || !projId)
+  if (!userId.id || !projId)
     return res.status(400).json({ message: "Invalid details provided" });
 
   const fetchedProject = await ProjectFetchService(userId.id, projId);
@@ -43,4 +50,19 @@ export async function ProjectFetchController(req: Request<{projId:string}>, res:
   });
 }
 
-export async function ProjectSwitchController(){}
+export async function ProjectSwitchController(req: Request, res: Response) {
+  const userId = req.user as { id: string; iat: number; exp: number };
+  const { projId } = req.body.data;
+  if (!userId.id || !projId)
+    return res.status(400).json({ message: "Invalid details provided" });
+
+  const setDefaultProject = await ProjectSwitchService(userId.id, projId);
+  if (setDefaultProject === 403)
+    return res
+      .status(403)
+      .json({
+        message: "You do not have permission to perform the current action!.",
+      });
+  
+  return res.json({message:"Project switched succesfully!", project:setDefaultProject});
+}

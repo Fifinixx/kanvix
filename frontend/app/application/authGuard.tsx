@@ -32,6 +32,6 @@ export default function AuthGuard({ children }: { children: ReactNode }) {
       active = false;
     };
   }, [router]);
-  if (status === "loading") return <ApplicationSkeleton />;
+  //if (status === "loading") return <ApplicationSkeleton />;
   return <>{children}</>;
 }

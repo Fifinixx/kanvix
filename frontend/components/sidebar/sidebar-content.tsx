@@ -25,7 +25,7 @@ import { useOrganization } from "@/app/application/context/organization-context"
 
 export default function SidebarContentSection() {
   const { selectedOrganization, loadingOrg } = useOrganization();
-
+  const { selectedProject, switchProject } = useProject();
   return (
     <>
       <SidebarContent>
@@ -33,28 +33,34 @@ export default function SidebarContentSection() {
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           <SidebarSeparator />
           <SidebarMenu>
-            {loadingOrg ? <SidebarContentSkeleton /> : selectedOrganization?.projects?.length === 0 ? (
+            {loadingOrg ? (
+              <SidebarContentSkeleton />
+            ) : selectedOrganization?.projects?.length === 0 ? (
               <p className="mx-2 mt-4 text-xs text-primary">
                 No Projects found
               </p>
             ) : (
               selectedOrganization?.projects?.map((project) => (
-                <Collapsible
-                  key={project.id}
-                  asChild
-                  defaultOpen={false}
-                  className="group/collapsible"
-                >
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton>
-                        {/* <project.icon className="h-4 w-4" /> */}
-                        <span>{project.name}</span>
-                        <ChevronRight className="ml-auto h-4 w-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
+                // <Collapsible
+                //   key={project.id}
+                //   asChild
+                //   defaultOpen={false}
+                //   className="group/collapsible"
+                // >
+                <SidebarMenuItem key={project.id}>
+                  {/* <CollapsibleTrigger asChild> */}
+                  <SidebarMenuButton
+                    isActive={project.id === selectedProject?.id}
+                    className="cursor-pointer"
+                    onClick={() => switchProject(project.id)}
+                  >
+                    {/* <project.icon className="h-4 w-4" /> */}
+                    <span>{project.name}</span>
+                    <ChevronRight className="ml-auto h-4 w-4" />
+                  </SidebarMenuButton>
+                  {/* </CollapsibleTrigger> */}
 
-                    {/* <CollapsibleContent>
+                  {/* <CollapsibleContent>
                     <SidebarMenuSub>
                       {project.items?.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
@@ -67,8 +73,8 @@ export default function SidebarContentSection() {
                       ))}
                     </SidebarMenuSub>
                   </CollapsibleContent> */}
-                  </SidebarMenuItem>
-                </Collapsible>
+                </SidebarMenuItem>
+                // </Collapsible>
               ))
             )}
           </SidebarMenu>

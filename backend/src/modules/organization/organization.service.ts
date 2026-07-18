@@ -26,7 +26,7 @@ export async function OrganizationAddService(
 }
 
 export async function OrganizationFetchService(userId: string, orgId: string) {
-  const org = await prisma.organization.findUnique({
+  const org = await prisma.organization.findUniqueOrThrow({
     where: { id: orgId },
     include: {
       memberships: {
@@ -35,9 +35,6 @@ export async function OrganizationFetchService(userId: string, orgId: string) {
       projects:true
     },
   });
-  if (!org) {
-    return 404;
-  }
   if (org.memberships.length === 0) {
     return 403;
   }

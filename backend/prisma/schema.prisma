@@ -26,8 +26,6 @@ model User {
   notifications          Notification[]
   selectedOrganization   Organization?  @relation("SelectedOrganization", fields: [selectedOrganizationId], references: [id])
   selectedOrganizationId String?
-  selectedProject        Project?       @relation("SelectedProject", fields: [selectedProjectId], references: [id])
-  selectedProjectId      String?
   ownedOrganizations     Organization[] @relation("CurrentOwner")
 }
 
@@ -71,6 +69,9 @@ model Membership {
   org    Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
   orgId  String
 
+  selectedProject   Project? @relation("SelectedProject", fields: [selectedProjectId], references: [id])
+  selectedProjectId String?
+
   @@unique([userId, orgId]) // a user joins an org once
   @@index([orgId])
 }
@@ -95,7 +96,7 @@ model Project {
   activities Activity[]
   createdAt  DateTime     @default(now())
 
-  selectedProject User[] @relation("SelectedProject")
+  selectedProject Membership[] @relation("SelectedProject")
 
   @@index([orgId])
 }

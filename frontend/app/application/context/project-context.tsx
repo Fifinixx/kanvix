@@ -1,11 +1,18 @@
 "use client";
 
-import { useState, useContext, createContext, ReactNode } from "react";
+import {
+  useState,
+  useContext,
+  createContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import { customFetch } from "@/lib/api";
 import { useOrganization } from "@/app/application/context/organization-context";
 import {
   ProjectAddApiService,
   ProjectFetchApiService,
+  ProjectSwitchApiService,
 } from "@/services/project.service";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -18,7 +25,7 @@ type ProjectContextType = {
   selectedProject: Project | null;
   setSelectedProject: React.Dispatch<React.SetStateAction<Project | null>>;
   fetchProject: (orgId: string) => Promise<void>;
-  switchProject: () => Promise<void>;
+  switchProject: (projId:string) => Promise<void>;
 };
 
 const ProjectContext = createContext<ProjectContextType | null>(null);
@@ -29,14 +36,19 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
   const selectedOrganizationId = rest?.selectedOrganizationId || null;
   const selectedProjectId = rest?.selectedProjectId || null;
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [loadingProj, setLoadingProj] = useState(rest?.loadingOrg);
+  const [loadingProj, setLoadingProj] = useState(false);
   const router = useRouter();
 
-  async function addProject(name: string) {
+  async function addProject(name: string, setDefault?: string) {
     if (!selectedOrganizationId) return;
     try {
       const res = await customFetch(() =>
-        ProjectAddApiService(selectedOrganizationId, name),
+        ProjectAddApiService(
+          selectedOrganizationId,
+          name,
+          (setDefault =
+            projects?.length && projects?.length > 0 ? "false" : "true"),
+        ),
       );
       if (res === 401) {
         router.push("/auth");
@@ -48,10 +60,9 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
         return;
       }
       const data = await res.json();
+      //setSelectedProject(data.project);
       await rest.fetchOrganization(selectedOrganizationId);
       toast.success("Project added succesfully!");
-      //setProject(data.project);
-      console.log(data);
     } catch (e) {
       toast.error("Failed to add project");
       console.error(e);
@@ -59,6 +70,7 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
   }
 
   async function fetchProject(projId: string) {
+    setLoadingProj(true);
     try {
       const res = await customFetch(() => ProjectFetchApiService(projId));
       if (res === 401) {
@@ -68,9 +80,10 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         const data = await res.json();
         toast.error(data.message || "Error while fetching project!");
+        return;
       }
       const data = await res.json();
-      setSelectedProject(data);
+      setSelectedProject(data.project);
     } catch (e) {
       console.error(e);
       toast.error("Something went wrong while project details!");
@@ -79,7 +92,32 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  async function switchProject() {}
+  useEffect(() => {
+    if (selectedProjectId) fetchProject(selectedProjectId);
+  }, [selectedProjectId]);
+
+  async function switchProject(projId: string) {
+    setLoadingProj(true);
+    try {
+      const res = await customFetch(() => ProjectSwitchApiService(projId));
+      if (res === 401) {
+        router.push("/auth");
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.message || "Error while switching project!");
+        return;
+      }
+      const data = await res.json();
+      setSelectedProject(data.project);
+    } catch (e) {
+      console.error(e);
+      toast.error("Something went wrong while switching projects!");
+    }finally{
+      setLoadingProj(false);
+    }
+  }
   return (
     <ProjectContext.Provider
       value={{
