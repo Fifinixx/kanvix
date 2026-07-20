@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import {Oxanium } from "next/font/google";
+import { Oxanium } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import { Toaster } from "@/components/ui/sonner"
-
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const oxanium = Oxanium({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -21,10 +21,18 @@ export default async function RootLayout({
     <html
       lang="en"
       className={cn("h-full", "antialiased", "font-sans", oxanium.variable)}
+      suppressHydrationWarning
     >
       <body className="relative h-screen">
-        {children}
-         <Toaster richColors/>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+        <Toaster richColors />
       </body>
     </html>
   );

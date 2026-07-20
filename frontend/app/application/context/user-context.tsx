@@ -1,7 +1,6 @@
 "use client";
 
 import { useUserAuth } from "@/hooks/useUserAuth";
-import { useId } from "@/app/application/context/id-context";
 import {
   useEffect,
   useState,

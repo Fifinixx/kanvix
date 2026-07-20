@@ -22,6 +22,7 @@ import {
 import { useProject } from "@/app/application/context/project-context";
 import { SidebarContentSkeleton } from "./sidebar-content-skeleton";
 import { useOrganization } from "@/app/application/context/organization-context";
+import { Skeleton } from "../ui/skeleton";
 
 export default function SidebarContentSection() {
   const { selectedOrganization, loadingOrg } = useOrganization();
@@ -30,7 +31,7 @@ export default function SidebarContentSection() {
     <>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>{loadingOrg ? <Skeleton className="w-[40%] h-4"/> : "Projects"}</SidebarGroupLabel>
           <SidebarSeparator />
           <SidebarMenu>
             {loadingOrg ? (

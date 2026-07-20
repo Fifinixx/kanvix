@@ -21,8 +21,8 @@ import { SidebarFooterSkeleton } from "./sidebar-footer-skeleton";
 import { useUser } from "@/app/application/context/user-context";
 
 export default function SidebarFooterSection() {
-  const {loading, user, handleSignOut} = useUser();
-  if (loading) return <SidebarFooterSkeleton />;
+  const {loadingUser, user, handleSignOut} = useUser();
+  if (loadingUser) return <SidebarFooterSkeleton />;
   return (
     <SidebarFooter>
       <SidebarMenu>

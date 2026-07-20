@@ -40,9 +40,7 @@ export default function ErrorHandler(
   res: Response,
   next: NextFunction,
 ) {
-  console.log(err);
   if(err instanceof z.ZodError){
-    console.log(err);
     const error = fromZodError(err);
     return res.status(400).json({message: "Invalid inputs, please try again!", error:error});
   }
