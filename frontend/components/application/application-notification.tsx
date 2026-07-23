@@ -38,7 +38,7 @@ export function ApplicationNotification() {
             return (
               <div
                 key={item.id}
-                className="flex text-primary justify-center items-center gap-4 p-2 bg-sidebar-accent"
+                className="flex  justify-center items-center gap-4 p-2 bg-sidebar-accent"
               >
                 <InfoIcon size={32}/>
                 {item.text}

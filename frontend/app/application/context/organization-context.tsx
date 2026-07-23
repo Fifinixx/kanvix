@@ -18,29 +18,11 @@ import {
 import { customFetch } from "@/lib/api";
 import { useRouter } from "next/navigation";
 import {
-  Memberships,
-  Project,
   type Organization,
+  type OrganizationContextType
 } from "../../../../shared/types";
 
-type OrganizationContextType = {
-  selectedOrganization: Organization | null;
-  memberships: Memberships[] | null;
-  selectedOrganizationId: string | null;
-  selectedProjectId: string | null;
-  switchOrganization: (switchOrg: string) => Promise<void>;
-  addOrganization: () => Promise<void>;
-  organizationInput: { name: string; loading: boolean };
-  fetchUser: () => Promise<void>;
-  setOrganizationInput: React.Dispatch<
-    React.SetStateAction<{
-      name: string;
-      loading: boolean;
-    }>
-  >;
-  fetchOrganization: (orgId: string) => Promise<void>;
-  loadingOrg: boolean;
-};
+
 const OrganizationContext = createContext<OrganizationContextType | null>(null);
 
 export function OrganizationContextProvider({
@@ -52,9 +34,10 @@ export function OrganizationContextProvider({
   const { id } = useId();
   const router = useRouter();
   const selectedOrganizationId = user?.selectedOrganizationId || null;
-  const selectedProjectId = user?.memberships?.find(org => selectedOrganizationId === org.orgId)?.selectedProjectId || null;
+  const selectedProjectId =
+    user?.memberships?.find((org) => selectedOrganizationId === org.orgId)
+      ?.selectedProjectId || null;
   const memberships = user?.memberships || null;
-  const [projects, setProjects] = useState<Project[] | null>(null)
   const [selectedOrganization, setSelectedOrganization] =
     useState<Organization | null>(null);
   const [loadingOrg, setLoadingOrg] = useState(true);
@@ -62,6 +45,7 @@ export function OrganizationContextProvider({
     name: "",
     loading: false,
   });
+
   async function fetchOrganization(orgId: string) {
     if (!orgId) return;
     try {
@@ -102,13 +86,34 @@ export function OrganizationContextProvider({
         setOrganizationInput((prev) => ({ ...prev, loading: false }));
         return;
       }
-      toast.success("Succesfully added an organzation.");
-      setOrganizationInput((prev) => ({ ...prev, loading: false }));
+      toast.success("Succesfully added an organization.");
+      const data = await res.json();
+      return data;
     } catch (e) {
-      setOrganizationInput((prev) => ({ ...prev, loading: false }));
       toast.error("Failed to add organization!");
       console.error(e);
+    } finally {
+      setOrganizationInput((prev) => ({ name: "", loading: false }));
     }
+  }
+
+  async function handleAddOrganization(
+    e: React.SubmitEvent<HTMLFormElement>,
+    switchOrg = false,
+  ) {
+    e.preventDefault();
+    const addedOrg = await addOrganization();
+    await fetchUser();
+    if (switchOrg) switchOrganization(addedOrg.organization.id);
+  }
+
+  function handleAddInput(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    setOrganizationInput((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
   }
 
   async function switchOrganization(switchOrg: string) {
@@ -153,10 +158,11 @@ export function OrganizationContextProvider({
         selectedOrganizationId,
         selectedProjectId,
         addOrganization,
+        handleAddOrganization,
         switchOrganization,
         organizationInput,
         fetchUser,
-        setOrganizationInput,
+        handleAddInput,
         fetchOrganization,
         loadingOrg,
       }}

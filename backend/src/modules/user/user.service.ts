@@ -5,25 +5,25 @@ export async function FetchUserService(userId: string) {
       id: userId,
     },
     include: {
-      memberships:{
-        include:{
-          org:{
-            select:{
-              id:true,
-              name:true,
-              slug:true
-            }
-          }
-        }
+      memberships: {
+        include: {
+          org: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
+        },
       },
-      selectedOrganization:{
-        select:{
-          id:true,
-          name:true,
-          slug:true
-        }
+
+      selectedOrganization: {
+        select: {
+          id: true,
+          name: true,
+          slug: true,
+        },
       },
-      
     },
     omit: {
       passwordHash: true,

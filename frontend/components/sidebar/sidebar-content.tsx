@@ -33,7 +33,7 @@ export default function SidebarContentSection() {
         <SidebarGroup>
           <SidebarGroupLabel>{loadingOrg ? <Skeleton className="w-[40%] h-4"/> : "Projects"}</SidebarGroupLabel>
           <SidebarSeparator />
-          <SidebarMenu>
+          <SidebarMenu className="py-2">
             {loadingOrg ? (
               <SidebarContentSkeleton />
             ) : selectedOrganization?.projects?.length === 0 ? (

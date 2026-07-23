@@ -82,7 +82,7 @@ export function NotificationContextProvider({
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [id]);
 
   function updateNotifications() {
     if (!id) return;

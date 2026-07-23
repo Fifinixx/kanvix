@@ -63,10 +63,54 @@ export interface Memberships {
 export interface Project {
   id: string;
   name: string;
+  description:string,
   orgId: string;
   tasks: Task[];
   activities: Activities[];
 }
+
+type ProjectInputContextType = {
+  name: string;
+  description: string;
+  loading: boolean;
+};
+export interface ProjectContextType{
+  projects: Project[] | null;
+  loadingProj: boolean;
+  addProject: (name: string, description: string) => Promise<void>;
+  selectedProject: Project | null;
+  setSelectedProject: React.Dispatch<React.SetStateAction<Project | null>>;
+  projectInput: ProjectInputContextType;
+  handleSetInputProject: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  dialog:boolean,
+  setDialog:React.Dispatch<React.SetStateAction<boolean>>,
+  fetchProject: (orgId: string) => Promise<void>;
+  switchProject: (projId: string) => Promise<void>;
+  handleAddProject: (e:React.SubmitEvent<HTMLFormElement>,switchProj?: string) => Promise<void>;
+  deleteProject: (projId: string | null) => Promise<void>;
+};
+
+export interface OrganizationContextType  {
+  selectedOrganization: Organization | null;
+  memberships: Memberships[] | null;
+  selectedOrganizationId: string | null;
+  selectedProjectId: string | null;
+  switchOrganization: (switchOrg: string) => Promise<void>;
+  addOrganization: () => Promise<void>;
+  handleAddOrganization: (
+    e: React.SubmitEvent<HTMLFormElement>,
+    switchOrg?: boolean,
+  ) => Promise<void>;
+  organizationInput: { name: string; loading: boolean };
+  fetchUser: () => Promise<void>;
+  handleAddInput: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => void;
+  fetchOrganization: (orgId: string) => Promise<void>;
+  loadingOrg: boolean;
+};
 
 enum Priority {
   LOW,

@@ -11,22 +11,16 @@ import { customFetch } from "@/lib/api";
 import { useOrganization } from "@/app/application/context/organization-context";
 import {
   ProjectAddApiService,
+  ProjectDeleteApiService,
   ProjectFetchApiService,
   ProjectSwitchApiService,
 } from "@/services/project.service";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { type Project } from "../../../../shared/types";
-
-type ProjectContextType = {
-  projects: Project[] | null;
-  loadingProj: boolean;
-  addProject: (name: string) => Promise<void>;
-  selectedProject: Project | null;
-  setSelectedProject: React.Dispatch<React.SetStateAction<Project | null>>;
-  fetchProject: (orgId: string) => Promise<void>;
-  switchProject: (projId:string) => Promise<void>;
-};
+import {
+  type Project,
+  type ProjectContextType,
+} from "../../../../shared/types";
 
 const ProjectContext = createContext<ProjectContextType | null>(null);
 
@@ -37,17 +31,31 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
   const selectedProjectId = rest?.selectedProjectId || null;
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
   const [loadingProj, setLoadingProj] = useState(false);
+  const [projectInput, setProjectInput] = useState({
+    name: "",
+    description: "",
+    loading: false,
+  });
+  const [dialog, setDialog] = useState(false);
   const router = useRouter();
 
-  async function addProject(name: string, setDefault?: string) {
+  async function addProject(
+    name: string,
+    description: string,
+    setDefault?: string,
+  ) {
     if (!selectedOrganizationId) return;
+    setProjectInput(prev => ({
+      ...prev,
+      loading: true,
+    }));
     try {
       const res = await customFetch(() =>
         ProjectAddApiService(
           selectedOrganizationId,
           name,
-          (setDefault =
-            projects?.length && projects?.length > 0 ? "false" : "true"),
+          description,
+          setDefault,
         ),
       );
       if (res === 401) {
@@ -57,15 +65,36 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         const data = await res.json();
         toast.error(data.message || "Failed to add project");
+        setDialog(false);
         return;
       }
       const data = await res.json();
       //setSelectedProject(data.project);
       await rest.fetchOrganization(selectedOrganizationId);
       toast.success("Project added succesfully!");
+      return data;
     } catch (e) {
       toast.error("Failed to add project");
       console.error(e);
+    } finally {
+      setProjectInput((prev) => ({ name:"", description:"", loading: false }));
+    }
+  }
+
+  function handleSetInputProject(
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) {
+    setProjectInput((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  }
+
+  async function handleAddProject(
+    e: React.SubmitEvent<HTMLFormElement>,
+    switchProj = projects?.length && projects?.length > 0 ? "false" : "true",
+  ) {
+    e.preventDefault();
+    const addedProject = await addProject(projectInput?.name, projectInput.description, switchProj);
+    if(switchProj === "true"){
+      switchProject(addedProject.project.id);
     }
   }
 
@@ -86,14 +115,38 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
       setSelectedProject(data.project);
     } catch (e) {
       console.error(e);
-      toast.error("Something went wrong while project details!");
+      toast.error("Something went wrong while fetching project details!");
     } finally {
       setLoadingProj(false);
     }
   }
 
+  async function deleteProject(projId:string | null){
+    if(!selectedOrganizationId || !projId) return;
+    try{
+      const res = await customFetch(() => ProjectDeleteApiService(projId));
+      if(res === 401){
+        router.push("/auth");
+        return
+      }
+      if(!res.ok){
+        const data = await res.json();
+        toast.error(data.message || "Error while deleting this project!");
+        return;
+      }
+      await rest.fetchOrganization(selectedOrganizationId);
+      setSelectedProject(null);
+      toast.success("Project was succesfully deleted!");
+    }catch(e){
+      console.error(e);
+      toast.error("Something went wrong while deleting this project!")
+    }
+  }
+
   useEffect(() => {
-    if (selectedProjectId) fetchProject(selectedProjectId);
+    if (selectedProjectId) {
+      fetchProject(selectedProjectId);
+    }
   }, [selectedProjectId]);
 
   async function switchProject(projId: string) {
@@ -114,7 +167,7 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
     } catch (e) {
       console.error(e);
       toast.error("Something went wrong while switching projects!");
-    }finally{
+    } finally {
       setLoadingProj(false);
     }
   }
@@ -125,9 +178,15 @@ export function ProjectContextProvider({ children }: { children: ReactNode }) {
         addProject,
         selectedProject,
         setSelectedProject,
+        projectInput,
+        handleSetInputProject,
+        dialog,
+        setDialog,
         loadingProj,
         switchProject,
         fetchProject,
+        handleAddProject,
+        deleteProject
       }}
     >
       {children}

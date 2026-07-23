@@ -88,14 +88,14 @@ model Invite {
 }
 
 model Project {
-  id         String       @id @default(cuid())
-  name       String
-  org        Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
-  orgId      String
-  tasks      Task[]
-  activities Activity[]
-  createdAt  DateTime     @default(now())
-
+  id              String       @id @default(cuid())
+  name            String
+  org             Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  orgId           String
+  tasks           Task[]
+  activities      Activity[]
+  createdAt       DateTime     @default(now())
+  description     String
   selectedProject Membership[] @relation("SelectedProject")
 
   @@index([orgId])

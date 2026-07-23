@@ -1,7 +1,7 @@
 import { Skeleton } from "../ui/skeleton";
 export default function KanbanProjectSkeleton() {
   return (
-    <div className="w-full flex flex-1 flex-col overflow-hidden">
+    <div className="mt-14 w-full flex flex-1 flex-col overflow-hidden">
       {/* Topbar */}
       <header className="flex h-14 shrink-0 items-center gap-3 border-b px-4">
         <Skeleton className="h-7 w-7 rounded-md md:hidden" />

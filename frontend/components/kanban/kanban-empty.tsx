@@ -10,11 +10,11 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty"
 
-import { ProjectAddDialog } from "./project-add-dialog"
+import { ProjectAddDialog } from "../project-add-dialog"
 
 export function KanbanEmptyBoard() {
   return (
-  <div className="h-full flex-1 flex items-center justify-center">
+  <div className="h-full flex items-center justify-center">
     <Empty className="border border-dashed size-100 bg-sidebar">
       <EmptyHeader>
         <EmptyMedia variant="icon">
