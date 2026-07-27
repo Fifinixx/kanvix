@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
-import { Oxanium } from "next/font/google";
+import { Oxanium, Inter, Geist_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const oxanium = Oxanium({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "Kanvix",
   description: "Collaborative Project Management, Multi-Tenant and Live sync",
 };
+
+const oxanium = Oxanium({ subsets: ["latin"], variable: "--font-sans" });
 
 export default async function RootLayout({
   children,

@@ -5,7 +5,6 @@ import { NotificationType } from "../../shared/types"
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-
 export function notificationCounter(
   notifications:NotificationType[]
 ){

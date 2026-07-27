@@ -8,6 +8,7 @@ import { KanbanEmptyBoard } from "./kanban-empty";
 import KanbanProjectSkeleton from "./kanban-project-skeleton";
 import { useProject } from "@/app/application/context/project-context";
 import KanbanNoProjectSelected from "./kanban-not-selected-proj";
+import KanbanTasks from "./kanban-tasks";
 
 export default function KanbanProject() {
   const { projects, loadingProj, selectedProject } = useProject();
@@ -15,6 +16,7 @@ export default function KanbanProject() {
   if (loadingProj || loadingOrg) return <div className="w-full h-full"><KanbanProjectSkeleton /></div>;
   if (!projects || projects?.length === 0) return <div className="h-full flex justify-center"><KanbanEmptyBoard /></div>
   if(!selectedProject || !selectedProject?.id ) return <div className="h-full flex justify-center"><KanbanNoProjectSelected /></div>
+
   return (
     <>
       <header className="flex justify-between items-start p-4">
@@ -31,6 +33,7 @@ export default function KanbanProject() {
             {selectedProject?.description}
           </p>
         </div>
+        <KanbanTasks />
       </div>
     </>
   );

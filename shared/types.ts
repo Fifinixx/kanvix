@@ -112,27 +112,28 @@ export interface OrganizationContextType  {
   loadingOrg: boolean;
 };
 
-enum Priority {
+export enum Priority {
   LOW,
   MEDIUM,
   HIGH,
 }
 
-enum TaskStatus {
+export enum TaskStatus {
   TODO,
   IN_PROGRESS,
   DONE,
 }
 export interface Task {
+  id:string,
   title: String;
   description?: String;
   status: TaskStatus;
   priority: Priority;
-  position: GLfloat;
+  //position: GLfloat;
   dueDate?: Date;
   projectId: String;
   assigneeId?: String;
-  comments: Comments[];
+  comments?: Comments[];
 }
 
 export interface Comments {}
