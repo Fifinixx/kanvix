@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import KabnabTaskTodo from "./kanban-task-todo";
-import KanbanTaskCompleted from "./kanban-task-completed";
-import KabnabTaskInProgress from "./kanban-task-in-progress";
-import { DragDropProvider } from "@dnd-kit/react";
-import { Task, Priority, TaskStatus } from "../../../shared/types";
-import KabnabTaskCompleted from "./kanban-task-completed";
+import { useCallback, useRef, useState } from "react";
+import { PointerSensor, KeyboardSensor } from "@dnd-kit/dom";
+import { DragDropProvider, DragDropEventHandlers } from "@dnd-kit/react";
+import { TaskPriority, TaskStatus, Task } from "../../../shared/types";
+import KabnabTaskColumn from "./kanban-task-column";
+import { move } from "@dnd-kit/helpers";
 
 const TASKS_LIST = [
   {
@@ -16,7 +15,7 @@ const TASKS_LIST = [
     description:
       "Sample pending task description. This task needs to be completed asap!",
     projectId: "Proj466344",
-    priority: Priority.MEDIUM,
+    priority: TaskPriority.MEDIUM,
   },
   {
     id: "fdafg35",
@@ -25,7 +24,7 @@ const TASKS_LIST = [
     description:
       "Sample pending task description. This task needs to be completed asap!",
     projectId: "Proj466344",
-    priority: Priority.MEDIUM,
+    priority: TaskPriority.MEDIUM,
   },
   {
     id: "sfgsfg454",
@@ -34,16 +33,16 @@ const TASKS_LIST = [
     description:
       "Sample pending task description. This task needs to be completed asap!",
     projectId: "Proj466344",
-    priority: Priority.MEDIUM,
+    priority: TaskPriority.HIGH,
   },
   {
     id: "jfbxwrtrwt",
     title: "Task 4",
-    status: TaskStatus.IN_PROGRESS,
+    status: TaskStatus["IN-PROGRESS"],
     description:
       "Sample in-progress task description. This task needs to be completed!",
     projectId: "Proj466344",
-    priority: Priority.MEDIUM,
+    priority: TaskPriority.HIGH,
   },
   {
     id: "ghgdh",
@@ -52,7 +51,7 @@ const TASKS_LIST = [
     description:
       "Sample in-progress task description. This task needs to be completed!",
     projectId: "Proj466344",
-    priority: Priority.MEDIUM,
+    priority: TaskPriority.MEDIUM,
   },
   //      {
   //     id: "hfjfgh",
@@ -74,54 +73,91 @@ const TASKS_LIST = [
   //   },
 ];
 
+const sensors = [
+  PointerSensor.configure({
+    activatorElements(source) {
+      return [source.element, source.handle];
+    },
+  }),
+
+  KeyboardSensor,
+];
+
 export default function KanbanTasks() {
-  const [tasks, setTasks] = useState<Task[]>(TASKS_LIST);
+  const [tasks, setTasks] = useState({
+    TODO: TASKS_LIST.filter((item) => item.status === TaskStatus.TODO),
+    "IN-PROGRESS": TASKS_LIST.filter(
+      (item) => item.status === TaskStatus["IN-PROGRESS"],
+    ),
+    DONE: TASKS_LIST.filter((item) => item.status === TaskStatus.DONE),
+  });
+  const columns = Object.keys(tasks) as Array<keyof typeof tasks>;
+
+  const tasksSnapshot = useRef(structuredClone(tasks));
+  console.log(tasks);
+  //   const [draggingTask, setDraggingTask] = useState<{group:string, task:Task | undefined, index:number} | null>(null)
   return (
     <>
       <DragDropProvider
-        onDragEnd={(event) => {
-          if (
-            event.canceled ||
-            event === null ||
-            !event.operation?.target ||
-            !event.operation?.source
-          ) {
+        sensors={sensors}
+        onDragStart={useCallback<DragDropEventHandlers["onDragStart"]>(
+          (event) => {
+            tasksSnapshot.current = structuredClone(tasks);
+            if (!event.operation.source) return;
+            const { group, index, task } = event.operation.source.data;
+            //  setDraggingTask({group, task, index});
+          },
+          [tasks],
+        )}
+        onDragOver={useCallback<DragDropEventHandlers["onDragOver"]>(
+          (event) => {
+            console.log(event.operation.source);
+            const { source, target } = event.operation;
+            //const column = target?.data.group as keyof typeof tasks;
+            const column = (
+              target?.type === "column" ? target.id : target?.data?.group
+            ) as keyof typeof tasks;
+            if (source && source.type === "column") {
+              return;
+            }
+            if (!column || !source?.id) return;
+            setTasks((prevTasks) => {
+              const reorderedTasks = move(prevTasks, event);
+              const updateTasks = reorderedTasks[column].map((item) => ({
+                ...item,
+                status: TaskStatus[column],
+              }));
+              return { ...reorderedTasks, [column]: updateTasks };
+            });
+          },
+          [],
+        )}
+        onDragEnd={useCallback<DragDropEventHandlers["onDragEnd"]>((event) => {
+          if (event.canceled) {
+            setTasks(tasksSnapshot.current);
             return;
           }
-          const item = tasks.find(
-            (item) => item.id === event.operation?.source?.id,
-          );
-          if (!item) return;
-          const filteredTask = tasks.filter((task) => task.id !== item.id);
-          switch (true) {
-            case event.operation.target.id === "todo-droppable":
-              filteredTask.push({ ...item, status: TaskStatus.TODO });
-              setTasks(filteredTask);
-              break;
-            case event.operation.target.id === "in-progress-droppable":
-              filteredTask.push({ ...item, status: TaskStatus.IN_PROGRESS });
-              setTasks(filteredTask);
-              break;
-            case event.operation.target.id === "done-droppable":
-              filteredTask.push({ ...item, status: TaskStatus.DONE });
-              setTasks(filteredTask);
-              break;
-            default:
-                setTasks(prev => prev)
-          }
-        }}
+          // setDraggingTask(null);
+        }, [])}
       >
-        <div className="flex justify-center items-center gap-4 ">
-          <div className="w-1/3">
-            <KabnabTaskTodo tasks={tasks} />
-          </div>
-          <div className="w-1/3">
-            <KabnabTaskInProgress tasks={tasks} />
-          </div>
-          <div className="w-1/3">
-            <KabnabTaskCompleted tasks={tasks} />
-          </div>
+        <div className="flex justify-center items-start gap-4 ">
+          {columns.map((item, index) => {
+            return (
+              <KabnabTaskColumn
+                key={item}
+                column={item}
+                tasks={tasks[item]}
+                index={index}
+              />
+            );
+          })}
         </div>
+        {/*
+        For some reason, If I go the DragOverlay route, animations dissapear. 
+        My pea sized brain will take some time to understand this, so just using something else.
+        <DragOverlay>
+           {draggingTask?.task ? <KanbanTaskOverlay task={draggingTask?.task} column={draggingTask.group} index={draggingTask.index}/> : null}
+        </DragOverlay> */}
       </DragDropProvider>
     </>
   );

@@ -17,10 +17,7 @@ import { LucideTrash2 } from "lucide-react";
 import { useState } from "react";
 import { Spinner } from "./ui/spinner";
 
-export function ProjectDeleteDialog({
-  selectedProjectId,
-}: {
-  selectedProjectId: string;
+export function TaskDeleteDialog({
 }) {
   const { deleteProject, selectedProject } = useProject();
   const [loading, setLoading] = useState(false);
